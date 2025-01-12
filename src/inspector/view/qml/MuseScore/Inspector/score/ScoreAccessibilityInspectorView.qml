@@ -20,37 +20,43 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 import QtQuick 2.15
+import QtQuick.Controls 2.15
+import QtQuick.Layouts 1.15
 
+import MuseScore.Inspector 1.0
 import Muse.UiComponents 1.0
+import Muse.Ui 1.0
 
-ExportSettingsPage {
+import "../common"
+
+InspectorSectionView {
     id: root
 
-    CheckBox {
+    implicitHeight: contentColumn.implicitHeight
+
+    Column {
+        id: contentColumn
         width: parent.width
-        text: qsTrc("project/export", "Include page and system breaks")
+        spacing: 8
 
-        navigation.name: "MeiExportLayout"
-        navigation.panel: root.navigationPanel
-        navigation.row: root.navigationOrder + 1
-
-        checked: root.model.meiExportLayout
-        onClicked: {
-            root.model.meiExportLayout = !checked
+        Text {
+            text: qsTr("Score style preset")
+            color: ui.theme.fontPrimaryColor
         }
-    }
 
-    CheckBox {
-        width: parent.width
-        text: qsTrc("project/export", "Use MuseScore element IDs")
+        StyledDropdown {
+            id: scoreStylePreset
+            width: parent.width
+            currentIndex: root.model ? root.model.currentStylePresetIndex : -1
+            model: root.model ? root.model.possibleStylePresets : null
 
-        navigation.name: "MeiUseMuseScoreIds"
-        navigation.panel: root.navigationPanel
-        navigation.row: root.navigationOrder + 1
+            Component.onCompleted: {
+                root.model.updateCurrentStylePreset()
+            }
 
-        checked: root.model.meiUseMuseScoreIds
-        onClicked: {
-            root.model.meiUseMuseScoreIds = !checked
+            onActivated: function(index, value) {
+                root.model.currentStylePresetIndex = index
+            }
         }
     }
 }
