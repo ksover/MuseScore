@@ -34,11 +34,14 @@ class EngravingItem;
 class KeySig;
 class Note;
 class Rest;
+class Measure;
 class Score;
 class Segment;
 class System;
+class Staff;
 class Tuplet;
 class Volta;
+struct NoteVal;
 
 enum class Key;
 
@@ -69,7 +72,7 @@ extern Segment* nextSeg1(Segment* s);
 extern Segment* prevSeg1(Segment* seg);
 
 extern Volta* findVolta(const Segment* seg, const Score* score);
-extern Note* searchTieNote(const Note* note, const Segment* nextSegment = nullptr);
+extern Note* searchTieNote(const Note* note, const Segment* nextSegment = nullptr, const bool disableOverRepeats = true);
 extern Note* searchTieNote114(Note* note);
 
 extern int absStep(int pitch);
@@ -81,10 +84,11 @@ extern int relStep(int pitch, int tpc, ClefType clef);
 extern int pitch2step(int pitch);
 extern int step2pitch(int step);
 int chromaticPitchSteps(const Note* noteL, const Note* noteR, const int nominalDiatonicSteps);
+extern int noteValToLine(const NoteVal& nval, const Staff* staff, const Fraction& tick);
 extern int compareNotesPos(const Note* n1, const Note* n2);
 
 extern Segment* skipTuplet(Tuplet* tuplet);
-extern SymIdList timeSigSymIdsFromString(const String&);
+extern SymIdList timeSigSymIdsFromString(const String&, TimeSigStyle timeSigStyle = TimeSigStyle::NORMAL);
 extern Fraction actualTicks(Fraction duration, Tuplet* tuplet, Fraction timeStretch);
 
 extern double yStaffDifference(const System* system1, const System* system2, staff_idx_t staffIdx1);
@@ -104,4 +108,9 @@ extern bool isFirstSystemKeySig(const KeySig* ks);
 extern String bendAmountToString(int fulls, int quarts);
 
 extern InstrumentTrackId makeInstrumentTrackId(const EngravingItem* item);
+
+extern std::vector<Measure*> findFollowingRepeatMeasures(const Measure* measure);
+extern std::vector<Measure*> findPreviousRepeatMeasures(const Measure* measure);
+extern bool repeatHasPartialLyricLine(const Measure* endRepeatMeasure);
+extern bool segmentsAreAdjacentInRepeatStructure(const Segment* firstSeg, const Segment* secondSeg);
 } // namespace mu::engraving

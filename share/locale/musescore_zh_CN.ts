@@ -7069,7 +7069,7 @@ text x-height):</source>
     <message>
         <location filename="../../src/notation/internal/notationuiactions.cpp" line="2021"/>
         <source>Default (step time)</source>
-        <translation>默认（阶跃时间）</translation>
+        <translation>默认（步进时间）</translation>
     </message>
     <message>
         <location filename="../../src/notation/internal/notationuiactions.cpp" line="2028"/>
@@ -10487,9 +10487,9 @@ This action will not delete any of your scores.</source>
     </message>
     <message>
         <location filename="../../src/appshell/qml/AboutDialog.qml" line="140"/>
-        <source>Copyright © 1999-2024 MuseScore Limited.
+        <source>Copyright © 1999-2025 MuseScore Limited.
 Published under the &lt;a href=&quot;%1&quot;&gt;GNU General Public License version 3&lt;/a&gt;.</source>
-        <translation>版权所有 © 1999-2024 MuseScore有限公司。
+        <translation>版权所有 © 1999-2025 MuseScore有限公司。
 依照 &lt;a href=&quot;%1&quot;&gt;GNU通用公共许可协议第三版&lt;/a&gt;发布。</translation>
     </message>
     <message>
@@ -10906,7 +10906,7 @@ Published under the &lt;a href=&quot;%1&quot;&gt;GNU General Public License vers
     <message>
         <location filename="../../src/appshell/qml/Preferences/internal/CommonAudioApiConfiguration.qml" line="71"/>
         <source>Buffer size:</source>
-        <translation>缓存大小：</translation>
+        <translation>缓冲区大小：</translation>
     </message>
     <message>
         <location filename="../../src/appshell/qml/Preferences/internal/CommonAudioApiConfiguration.qml" line="89"/>
@@ -13380,7 +13380,7 @@ Published under the &lt;a href=&quot;%1&quot;&gt;GNU General Public License vers
     <message>
         <location filename="../../src/engraving/types/typesconv.cpp" line="2482"/>
         <source>Da Coda</source>
-        <translation>自Coda始</translation>
+        <translation>转到Coda</translation>
     </message>
     <message>
         <location filename="../../src/engraving/types/typesconv.cpp" line="2474"/>
@@ -13390,7 +13390,7 @@ Published under the &lt;a href=&quot;%1&quot;&gt;GNU General Public License vers
     <message>
         <location filename="../../src/engraving/types/typesconv.cpp" line="2475"/>
         <source>Segno variation</source>
-        <translation>变体S标</translation>
+        <translation>S标变体</translation>
     </message>
     <message>
         <location filename="../../src/engraving/types/typesconv.cpp" line="2476"/>
@@ -13400,7 +13400,7 @@ Published under the &lt;a href=&quot;%1&quot;&gt;GNU General Public License vers
     <message>
         <location filename="../../src/engraving/types/typesconv.cpp" line="2477"/>
         <source>Varied coda</source>
-        <translation>变体的尾声</translation>
+        <translation>方形Coda</translation>
     </message>
     <message>
         <location filename="../../src/engraving/types/typesconv.cpp" line="2479"/>
@@ -13495,7 +13495,7 @@ Published under the &lt;a href=&quot;%1&quot;&gt;GNU General Public License vers
     <message>
         <location filename="../../src/engraving/types/typesconv.cpp" line="2454"/>
         <source>Dal Segno al Doppia Coda</source>
-        <translation>从S标开始到双尾声号</translation>
+        <translation>从S标始,至双尾声号终</translation>
     </message>
     <message>
         <location filename="../../src/engraving/types/typesconv.cpp" line="2455"/>
@@ -13505,17 +13505,17 @@ Published under the &lt;a href=&quot;%1&quot;&gt;GNU General Public License vers
     <message>
         <location filename="../../src/engraving/types/typesconv.cpp" line="2456"/>
         <source>Dal Doppio Segno al Coda</source>
-        <translation>从双S记号到尾声号</translation>
+        <translation>从双S标始,至Coda终</translation>
     </message>
     <message>
         <location filename="../../src/engraving/types/typesconv.cpp" line="2457"/>
         <source>Dal Doppio Segno al Doppia Coda</source>
-        <translation>从双S标始至双尾声号</translation>
+        <translation>从双S标始,至双尾声号终</translation>
     </message>
     <message>
         <location filename="../../src/engraving/types/typesconv.cpp" line="2458"/>
         <source>Dal Doppio Segno al Fine</source>
-        <translation>从双S标到终止号</translation>
+        <translation>从双S标始,至Fine终</translation>
     </message>
     <message>
         <location filename="../../src/engraving/types/typesconv.cpp" line="2478"/>
@@ -17867,7 +17867,7 @@ Fret %1 on strings %2</source>
     <message>
         <location filename="../../src/engraving/types/symnames.cpp" line="5858"/>
         <source>Cut time</source>
-        <translation>二二拍子（简写）</translation>
+        <translation>二二拍</translation>
     </message>
     <message>
         <location filename="../../src/engraving/types/symnames.cpp" line="5884"/>
@@ -17991,7 +17991,7 @@ Fret %1 on strings %2</source>
         <location filename="../../src/palette/internal/palettecreator.cpp" line="1704"/>
         <location filename="../../src/project/view/additionalinfomodel.cpp" line="202"/>
         <source>Cut time</source>
-        <translation>二二拍子（简写）</translation>
+        <translation>二二拍</translation>
     </message>
     <message>
         <location filename="../../src/engraving/dom/timesig.cpp" line="334"/>
@@ -18888,7 +18888,7 @@ Fret %1 on strings %2</source>
         <location filename="../../src/project/qml/MuseScore/Project/internal/ScoresPage/RecentScoresView.qml" line="143"/>
         <source>Size</source>
         <comment>file size</comment>
-        <translation>字号</translation>
+        <translation>文件大小</translation>
     </message>
     <message>
         <location filename="../../src/framework/cloud/qml/Muse/Cloud/internal/CloudScoresListView.qml" line="213"/>
@@ -20410,7 +20410,7 @@ pickup measure</source>
     <message>
         <location filename="../../src/inspector/view/qml/MuseScore/Inspector/notation/markers/MarkerSettings.qml" line="63"/>
         <source>Varied coda</source>
-        <translation>变体尾声（Coda）</translation>
+        <translation>方形Coda</translation>
     </message>
     <message>
         <location filename="../../src/inspector/view/qml/MuseScore/Inspector/notation/markers/MarkerSettings.qml" line="64"/>
@@ -24726,7 +24726,7 @@ In addition, Mastering MuseScore features a supportive community of musicians, w
         <location filename="../../src/palette/internal/palettecreator.cpp" line="1256"/>
         <location filename="../../src/palette/internal/palettecreator.cpp" line="1929"/>
         <source>Pedal (angled end hook)</source>
-        <translation>右踏板（外翻尾钩）</translation>
+        <translation>右踏板（尾端折钩外翻）</translation>
     </message>
     <message>
         <location filename="../../src/palette/internal/palettecreator.cpp" line="1265"/>

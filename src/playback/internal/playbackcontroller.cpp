@@ -25,6 +25,7 @@
 
 #include "engraving/dom/stafftext.h"
 #include "engraving/dom/utils.h"
+#include "engraving/dom/factory.h"
 
 #include "audio/audioutils.h"
 #include "audio/devtools/inputlag.h"
@@ -86,15 +87,6 @@ static std::string resolveAuxTrackTitle(aux_channel_idx_t index, const AudioOutp
     }
 
     return muse::mtrc("playback", "Aux %1").arg(index + 1).toStdString();
-}
-
-static bool shouldLoadDrumset(const AudioResourceMeta& oldMeta, const AudioResourceMeta& newMeta)
-{
-    if (oldMeta.type == newMeta.type && oldMeta.id == newMeta.id) {
-        return false;
-    }
-
-    return oldMeta.type == AudioResourceType::MuseSamplerSoundPack || newMeta.type == AudioResourceType::MuseSamplerSoundPack;
 }
 
 void PlaybackController::init()
@@ -358,6 +350,28 @@ void PlaybackController::playElements(const std::vector<const notation::Engravin
     notationPlayback()->triggerEventsForItems(elementsForPlaying);
 }
 
+void PlaybackController::playNotes(const NoteValList& notes, const staff_idx_t staffIdx, const Segment* segment)
+{
+    Segment* seg = const_cast<Segment*>(segment);
+    Chord* chord = engraving::Factory::createChord(seg);
+    chord->setParent(seg);
+
+    std::vector<const EngravingItem*> elements;
+
+    for (const NoteVal& nval : notes) {
+        Note* note = engraving::Factory::createNote(chord);
+        note->setParent(chord);
+        note->setStaffIdx(staffIdx);
+        note->setNval(nval);
+        elements.push_back(note);
+    }
+
+    playElements(elements);
+
+    delete chord;
+    DeleteAll(elements);
+}
+
 void PlaybackController::playMetronome(int tick)
 {
     notationPlayback()->triggerMetronome(tick);
@@ -421,11 +435,27 @@ void PlaybackController::onAudioResourceChanged(const InstrumentTrackId& trackId
         return;
     }
 
-    if (shouldLoadDrumset(oldMeta, newMeta)) {
+    if (shouldLoadDrumset(trackId, oldMeta, newMeta)) {
         m_drumsetLoader.loadDrumset(m_notation, trackId, newMeta);
     }
 
     notationPlayback->removeSoundFlags({ trackId });
+}
+
+bool PlaybackController::shouldLoadDrumset(const engraving::InstrumentTrackId& trackId, const AudioResourceMeta& oldMeta,
+                                           const AudioResourceMeta& newMeta) const
+{
+    if (oldMeta.type == newMeta.type && oldMeta.id == newMeta.id) {
+        return false;
+    }
+
+    const Part* part = masterNotationParts()->part(trackId.partId);
+    const Instrument* instrument = part ? part->instrumentById(trackId.instrumentId) : nullptr;
+    if (!instrument || !instrument->useDrumset()) {
+        return false;
+    }
+
+    return oldMeta.type == AudioResourceType::MuseSamplerSoundPack || newMeta.type == AudioResourceType::MuseSamplerSoundPack;
 }
 
 void PlaybackController::addSoundFlagsIfNeed(const std::vector<EngravingItem*>& selection)
@@ -1006,7 +1036,7 @@ void PlaybackController::doAddTrack(const InstrumentTrackId& instrumentTrackId, 
             onTrackNewlyAdded(instrumentTrackId);
         }
 
-        if (shouldLoadDrumset(originMeta, appliedParams.in.resourceMeta)) {
+        if (shouldLoadDrumset(instrumentTrackId, originMeta, appliedParams.in.resourceMeta)) {
             m_drumsetLoader.loadDrumset(m_notation, instrumentTrackId, appliedParams.in.resourceMeta);
         }
     })

@@ -42,6 +42,7 @@
 
 #include "notationviewinputcontroller.h"
 #include "noteinputcursor.h"
+#include "notationruler.h"
 #include "playbackcursor.h"
 #include "loopmarker.h"
 #include "continuouspanel.h"
@@ -167,6 +168,9 @@ signals:
 protected:
     INotationPtr notation() const;
     void setNotation(INotationPtr notation);
+
+    NotationViewInputController* inputController() const;
+
     void setReadonly(bool readonly);
     void setMatrix(const muse::draw::Transform& matrix);
 
@@ -182,6 +186,8 @@ protected:
 
     virtual void onLoadNotation(INotationPtr notation);
     virtual void onUnloadNotation(INotationPtr notation);
+
+    virtual void initZoomAndPosition();
 
     virtual void onMatrixChanged(const muse::draw::Transform& oldMatrix, const muse::draw::Transform& newMatrix, bool overrideZoomType);
 
@@ -261,6 +267,7 @@ private:
     std::unique_ptr<NotationViewInputController> m_inputController;
     std::unique_ptr<PlaybackCursor> m_playbackCursor;
     std::unique_ptr<NoteInputCursor> m_noteInputCursor;
+    std::unique_ptr<NotationRuler> m_ruler;
     std::unique_ptr<LoopMarker> m_loopInMarker;
     std::unique_ptr<LoopMarker> m_loopOutMarker;
     std::unique_ptr<ContinuousPanel> m_continuousPanel;

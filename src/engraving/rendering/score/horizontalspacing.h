@@ -82,24 +82,19 @@ private:
             : segment(s), xPosInSystemCoords(x) {}
     };
 
-    struct CrossBeamType
+    struct CrossBeamSpacing
     {
         bool upDown = false;
         bool downUp = false;
         bool canBeAdjusted = true;
         bool hasOpposingBeamlets = false;
-        void reset()
-        {
-            upDown = false;
-            downUp = false;
-            canBeAdjusted = true;
-            hasOpposingBeamlets = false;
-        }
+        bool preventCrossStaffKerning = false;
+        bool ensureMinStemDistance = false;
     };
 
     static void spaceMeasureGroup(const std::vector<Measure*>& measureGroup, HorizontalSpacingContext& ctx);
     static double getFirstSegmentXPos(Segment* segment, HorizontalSpacingContext& ctx);
-    static std::vector<SegmentPosition> spaceSegments(const std::vector<Segment*> segList, int startSegIdx, HorizontalSpacingContext& ctx);
+    static std::vector<SegmentPosition> spaceSegments(const std::vector<Segment*>& segList, int startSegIdx, HorizontalSpacingContext& ctx);
     static bool ignoreSegmentForSpacing(const Segment* segment);
     static bool ignoreAllSegmentsForSpacing(const std::vector<SegmentPosition>& segmentPositions);
     static void spaceAgainstPreviousSegments(Segment* segment, std::vector<SegmentPosition>& prevSegPositions,
@@ -107,7 +102,11 @@ private:
     static bool stopCheckingPreviousSegments(const SegmentPosition& prev, const SegmentPosition& curSegPos);
     static void checkLyricsAgainstLeftMargin(Segment* segment, double& x, HorizontalSpacingContext& ctx);
     static void checkLyricsAgainstRightMargin(std::vector<SegmentPosition>& segPositions);
+    static double spaceLyricsAgainstBarlines(Segment* firstSeg, Segment* secondSeg, const HorizontalSpacingContext& ctx);
+    static void checkLargeTimeSigAgainstRightMargin(std::vector<SegmentPosition>& segPositions);
     static void moveRightAlignedSegments(std::vector<SegmentPosition>& placedSegments, const HorizontalSpacingContext& ctx);
+    static void checkCollisionsWithCrossStaffStems(const Segment* thisSeg, const Segment* nextSeg, staff_idx_t staffIdx,
+                                                   double& curMinDist);
 
     static double chordRestSegmentNaturalWidth(Segment* segment, HorizontalSpacingContext& ctx);
     static double computeSegmentDurationStretch(const Segment* curSeg, const Segment* prevSeg);
@@ -116,7 +115,7 @@ private:
     static bool needsCueSizeSpacing(const Segment* segment);
 
     static void applyCrossBeamSpacingCorrection(Segment* thisSeg, Segment* nextSeg, double& width);
-    static CrossBeamType computeCrossBeamType(Segment* thisSeg, Segment* nextSeg);
+    static CrossBeamSpacing computeCrossBeamSpacing(Segment* thisSeg, Segment* nextSeg);
 
     static void enforceMinimumMeasureWidths(const std::vector<Measure*> measureGroup);
     static double computeMinMeasureWidth(Measure* m);
@@ -135,6 +134,7 @@ private:
     static bool isSameVoiceKerningLimited(const EngravingItem* item);
     static bool isNeverKernable(const EngravingItem* item);
     static bool isAlwaysKernable(const EngravingItem* item);
+    static bool ignoreItems(const EngravingItem* item1, const EngravingItem* item2);
 
     static KerningType doComputeKerningType(const EngravingItem* item1, const EngravingItem* item2);
     static KerningType computeNoteKerningType(const Note* note, const EngravingItem* item2);

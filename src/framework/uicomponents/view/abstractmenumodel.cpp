@@ -77,12 +77,21 @@ void AbstractMenuModel::handleMenuItem(const QString& itemId)
 {
     MenuItem& menuItem = findItem(itemId);
 
-    dispatch(menuItem.action().code, menuItem.args());
+    if (menuItem.query().isValid()) {
+        dispatch(menuItem.query());
+    } else {
+        dispatch(menuItem.action().code, menuItem.args());
+    }
 }
 
 void AbstractMenuModel::dispatch(const ActionCode& actionCode, const ActionData& args)
 {
     dispatcher()->dispatch(actionCode, args);
+}
+
+void AbstractMenuModel::dispatch(const muse::actions::ActionQuery& actionQuery)
+{
+    dispatcher()->dispatch(actionQuery);
 }
 
 QVariantMap AbstractMenuModel::get(int index)
@@ -214,6 +223,11 @@ MenuItem* AbstractMenuModel::makeMenuItem(const ActionCode& actionCode, const Tr
         item->setTitle(title);
     }
 
+    ActionQuery q(actionCode);
+    if (q.isValid()) {
+        item->setQuery(q);
+    }
+
     return item;
 }
 
@@ -257,6 +271,9 @@ void AbstractMenuModel::setItem(int index, MenuItem* item)
 MenuItem& AbstractMenuModel::item(MenuItemList& items, const QString& itemId)
 {
     for (MenuItem* menuItem : items) {
+        if (!menuItem) {
+            continue;
+        }
         if (menuItem->id() == itemId) {
             return *menuItem;
         }

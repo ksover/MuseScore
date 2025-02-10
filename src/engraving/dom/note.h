@@ -36,7 +36,9 @@
 #include "pitchspelling.h"
 #include "symbol.h"
 #include "tie.h"
+#include "tiejumppointlist.h"
 #include "types.h"
+#include "noteval.h"
 
 namespace mu::engraving {
 class Factory;
@@ -93,25 +95,6 @@ public:
     NoteHead* clone() const override { return new NoteHead(*this); }
 
     NoteHeadGroup headGroup() const;
-};
-
-//---------------------------------------------------------
-//   NoteVal
-///    helper structure
-///   \cond PLUGIN_API \private \endcond
-//---------------------------------------------------------
-
-struct NoteVal {
-    int pitch = -1;
-    int tpc1 = Tpc::TPC_INVALID;
-    int tpc2 = Tpc::TPC_INVALID;
-    int fret = INVALID_FRET_INDEX;
-    int string = INVALID_STRING_INDEX;
-    NoteHeadGroup headGroup = NoteHeadGroup::HEAD_NORMAL;
-
-    NoteVal() {}
-    NoteVal(int p)
-        : pitch(p) {}
 };
 
 static const int INVALID_LINE = -10000;
@@ -574,6 +557,6 @@ private:
     String m_fretString;
 
     std::vector<LineAttachPoint> m_lineAttachPoints;
-    TieJumpPointList m_jumpPoints;
+    TieJumpPointList m_jumpPoints { this };
 };
 } // namespace mu::engraving

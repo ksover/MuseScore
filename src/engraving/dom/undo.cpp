@@ -2039,6 +2039,11 @@ static void changeStyleValue(Score* score, Sid idx, const PropertyValue& oldValu
     case Sid::defaultsVersion:
         score->style().setDefaultStyleVersion(newValue.toInt());
         break;
+    case Sid::createMultiMeasureRests:
+        if (oldValue.toBool() == true && newValue.toBool() == false) {
+            score->updateSystemLocksOnDisableMMRests();
+        }
+        break;
     default:
         break;
     }
@@ -2296,7 +2301,7 @@ void InsertRemoveMeasures::insertMeasures()
             }
             Chord* chord = toChord(e);
             for (Note* n : chord->notes()) {
-                Tie* tie = n->tieFor();
+                Tie* tie = n->tieForNonPartial();
                 if (!tie) {
                     continue;
                 }
@@ -3043,6 +3048,22 @@ void ChangeDrumset::flip(EditData*)
     if (part->staves().size() > 0) {
         part->score()->setLayout(Fraction(0, 1), part->score()->endTick(), part->staves().front()->idx(), part->staves().back()->idx());
     }
+}
+
+//---------------------------------------------------------
+//   FretDataChange
+//---------------------------------------------------------
+
+void FretDataChange::redo(EditData*)
+{
+    m_undoData = FretUndoData(m_diagram);
+
+    m_diagram->updateDiagram(m_harmonyName);
+}
+
+void FretDataChange::undo(EditData*)
+{
+    m_undoData.updateDiagram();
 }
 
 //---------------------------------------------------------

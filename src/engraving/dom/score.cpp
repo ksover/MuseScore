@@ -1535,6 +1535,7 @@ void Score::addElement(EngravingItem* element)
     case ElementType::RASGUEADO:
     case ElementType::HARMONIC_MARK:
     case ElementType::PICK_SCRAPE:
+    case ElementType::PARTIAL_LYRICSLINE:
     {
         Spanner* spanner = toSpanner(element);
         if (et == ElementType::TEXTLINE && spanner->anchor() == Spanner::Anchor::NOTE) {
@@ -1722,6 +1723,7 @@ void Score::removeElement(EngravingItem* element)
     case ElementType::LET_RING:
     case ElementType::GRADUAL_TEMPO_CHANGE:
     case ElementType::PALM_MUTE:
+    case ElementType::PARTIAL_LYRICSLINE:
     case ElementType::WHAMMY_BAR:
     case ElementType::RASGUEADO:
     case ElementType::HARMONIC_MARK:
@@ -2013,15 +2015,6 @@ double Score::utick2utime(int tick) const
 int Score::utime2utick(double utime) const
 {
     return repeatList().utime2utick(utime);
-}
-
-//---------------------------------------------------------
-//   inputPos
-//---------------------------------------------------------
-
-Fraction Score::inputPos() const
-{
-    return m_is.tick();
 }
 
 //---------------------------------------------------------
@@ -3099,11 +3092,7 @@ void Score::cmdConcertPitchChanged(bool flag)
     }
 }
 
-//---------------------------------------------------------
-//   padToggle
-//---------------------------------------------------------
-
-void Score::padToggle(Pad p, const EditData& ed)
+void Score::padToggle(Pad p, bool toggleForSelectionOnly)
 {
     if (!noteEntryMode()) {
         for (ChordRest* cr : getSelectedChordRests()) {
@@ -3113,7 +3102,10 @@ void Score::padToggle(Pad p, const EditData& ed)
         }
     }
 
-    int oldDots = m_is.duration().dots();
+    const TDuration oldDuration = m_is.duration();
+    const bool oldRest = m_is.rest();
+    const AccidentalType oldAccidentalType = m_is.accidentalType();
+
     switch (p) {
     case Pad::NOTE00:
         m_is.setDuration(DurationType::V_LONG);
@@ -3159,7 +3151,6 @@ void Score::padToggle(Pad p, const EditData& ed)
             m_is.setRest(!m_is.rest());
             m_is.setAccidentalType(AccidentalType::NONE);
         } else if (selection().isNone()) {
-            ed.view()->startNoteEntryMode();
             m_is.setDuration(DurationType::V_QUARTER);
             m_is.setRest(true);
         } else {
@@ -3215,65 +3206,40 @@ void Score::padToggle(Pad p, const EditData& ed)
         // if in "note enter" mode, reset
         // rest flag
         //
-        if (noteEntryMode()) {
-            if (usingNoteEntryMethod(NoteEntryMethod::RHYTHM)) {
-                switch (oldDots) {
+        if (noteEntryMode() && !toggleForSelectionOnly) {
+            if (usingNoteEntryMethod(NoteEntryMethod::BY_DURATION) || usingNoteEntryMethod(NoteEntryMethod::RHYTHM)) {
+                switch (oldDuration.dots()) {
                 case 1:
-                    padToggle(Pad::DOT, ed);
+                    padToggle(Pad::DOT);
                     break;
                 case 2:
-                    padToggle(Pad::DOT2, ed);
+                    padToggle(Pad::DOT2);
                     break;
                 case 3:
-                    padToggle(Pad::DOT3, ed);
+                    padToggle(Pad::DOT3);
                     break;
                 case 4:
-                    padToggle(Pad::DOT4, ed);
+                    padToggle(Pad::DOT4);
                     break;
                 }
 
-                NoteVal nval;
-                DirectionV stemDirection = DirectionV::AUTO;
                 if (m_is.rest()) {
                     // Enter a rest
-                    nval = NoteVal();
-                } else {
-                    EngravingItem* e = selection().element();
-                    if (e && e->isNote()) {
-                        // use same pitch etc. as previous note
-                        Note* n = toNote(e);
-                        nval = n->noteVal();
-                        stemDirection = n->chord()->stemDirection();
-                    } else {
-                        // enter a reasonable default note
-                        Staff* s = staff(m_is.track() / VOICES);
-                        Fraction tick = m_is.tick();
-                        if (s->isTabStaff(tick)) {
-                            // tab - use fret 0 on current string
-                            nval.fret = 0;
-                            nval.string = m_is.string();
-                            const StringData* stringData = s->part()->stringData(tick, s->idx());
-                            nval.pitch = stringData->getPitch(nval.string, nval.fret, s);
-                        } else if (s->isDrumStaff(tick)) {
-                            // drum - use selected drum palette note
-                            int n = m_is.drumNote();
-                            if (n == -1) {
-                                // no selection on palette - find next valid pitch
-                                const Drumset* ds = m_is.drumset();
-                                n = ds->nextPitch(n);
-                            }
-                            nval = NoteVal(n);
-                        } else {
-                            // standard staff - use middle line
-                            ClefType clef = s->clef(tick);
-                            Key key = s->key(tick);
-                            int line = ((s->lines(tick) - 1) / 2) * 2;
-                            nval = NoteVal(line2pitch(line, clef, key));
-                        }
+                    setNoteRest(m_is.segment(), m_is.track(), NoteVal(), m_is.duration().fraction());
+                    m_is.moveToNextInputPos();
+                } else if (!m_is.notes().empty()) {
+                    const ChordRest* cr = m_is.cr();
+                    AddToChord addType = AddToChord::None;
+                    if (cr && cr->isChord() && cr->durationType() == m_is.duration()) {
+                        addType = AddToChord::AtCurrentPosition;
+                    }
+
+                    for (const NoteVal& nval : m_is.notes()) {
+                        NoteVal copy(nval);
+                        addPitch(copy, addType);
+                        addType = AddToChord::AtCurrentPosition;
                     }
                 }
-                setNoteRest(m_is.segment(), m_is.track(), nval, m_is.duration().fraction(), stemDirection, false, m_is.articulationIds());
-                m_is.moveToNextInputPos();
             } else {
                 m_is.setRest(false);
             }
@@ -3281,7 +3247,9 @@ void Score::padToggle(Pad p, const EditData& ed)
     }
 
     if (noteEntryMode()) {
-        return;
+        if (!toggleForSelectionOnly || selection().isNone()) {
+            return;
+        }
     }
 
     std::vector<ChordRest*> crs;
@@ -3310,12 +3278,10 @@ void Score::padToggle(Pad p, const EditData& ed)
         if (cr) {
             crs.push_back(cr);
         } else {
-            ed.view()->startNoteEntryMode();
             deselect(e);
         }
     } else if (selection().isNone() && p != Pad::REST) {
         TDuration td = m_is.duration();
-        ed.view()->startNoteEntryMode();
         m_is.setDuration(td);
         m_is.setAccidentalType(AccidentalType::NONE);
     } else {
@@ -3374,6 +3340,13 @@ void Score::padToggle(Pad p, const EditData& ed)
         }
         select(selectList, SelectType::ADD, 0);
         selection().updateSelectedElements();
+    }
+
+    if (toggleForSelectionOnly) {
+        m_is.setDuration(oldDuration);
+        m_is.setRest(oldRest);
+        m_is.setAccidentalType(oldAccidentalType);
+        m_is.moveToNextInputPos();
     }
 }
 
@@ -4650,6 +4623,10 @@ ChordRest* Score::findChordRestEndingBeforeTickInTrack(const Fraction& tick, tra
 
 ChordRest* Score::cmdNextPrevSystem(ChordRest* cr, bool next)
 {
+    IF_ASSERT_FAILED(cr) {
+        return nullptr;
+    }
+
     auto newCR = cr;
     auto currentMeasure = cr->measure();
     auto currentSystem = currentMeasure->system() ? currentMeasure->system() : currentMeasure->coveringMMRestOrThis()->system();
@@ -4657,6 +4634,10 @@ ChordRest* Score::cmdNextPrevSystem(ChordRest* cr, bool next)
         return cr;
     }
     auto destinationMeasure = currentSystem->firstMeasure();
+    if (!destinationMeasure) {
+        return cr;
+    }
+
     auto firstSegment = destinationMeasure->first(SegmentType::ChordRest);
 
     // Case: Go to next system
@@ -4666,6 +4647,9 @@ ChordRest* Score::cmdNextPrevSystem(ChordRest* cr, bool next)
             currentSystem = destinationMeasure->system()
                             ? destinationMeasure->system()
                             : destinationMeasure->coveringMMRestOrThis()->system();
+            if (!currentSystem) {
+                return cr;
+            }
             if ((destinationMeasure = currentSystem->firstMeasure())) {
                 if ((newCR = destinationMeasure->first()->nextChordRest(trackZeroVoice(cr->track()), false))) {
                     cr = newCR;
@@ -4694,10 +4678,8 @@ ChordRest* Score::cmdNextPrevSystem(ChordRest* cr, bool next)
         // and not in first measure of entire score
         if ((destinationMeasure != firstMeasure() && destinationMeasure != firstMeasureMM())
             && (currentSegment == firstSegment || (currentMeasure->mmRest() && currentMeasure->mmRest()->isFirstInSystem()))) {
-            if (!(destinationMeasure = destinationMeasure->prevMeasure())) {
-                if (!(destinationMeasure = destinationMeasure->prevMeasureMM())) {
-                    return cr;
-                }
+            if (!(destinationMeasure = destinationMeasure->prevMeasureMM())) {
+                return cr;
             }
             if (!(currentSystem = destinationMeasure->system()
                                   ? destinationMeasure->system()

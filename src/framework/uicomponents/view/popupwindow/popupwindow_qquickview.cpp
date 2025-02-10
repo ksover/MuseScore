@@ -40,6 +40,8 @@ PopupWindow_QQuickView::~PopupWindow_QQuickView()
 
 void PopupWindow_QQuickView::init(QQmlEngine* engine, bool isDialogMode, bool isFrameless)
 {
+    QQuickWindow::setDefaultAlphaBuffer(!isDialogMode);
+
     //! NOTE: do not set the window when constructing the view
     //! This causes different bugs on different OS (e.g., no transparency for popups on windows)
     m_view = new QQuickView(engine, nullptr);
@@ -135,6 +137,9 @@ void PopupWindow_QQuickView::forceActiveFocus()
     if (!m_view) {
         return;
     }
+
+    m_view->setFlags(m_view->flags() & (~Qt::WindowDoesNotAcceptFocus));
+    m_view->requestActivate();
 
     QQuickItem* rootObject = m_view->rootObject();
     if (!rootObject) {
@@ -242,6 +247,11 @@ void PopupWindow_QQuickView::setResizable(bool resizable)
 void PopupWindow_QQuickView::setPosition(const QPoint& position) const
 {
     m_view->setPosition(position);
+}
+
+bool PopupWindow_QQuickView::hasActiveFocus() const
+{
+    return m_view && m_view->activeFocusItem() != nullptr;
 }
 
 void PopupWindow_QQuickView::setOnHidden(const std::function<void()>& callback)

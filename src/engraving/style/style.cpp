@@ -198,6 +198,15 @@ bool MStyle::readProperties(XmlReader& e)
             case P_TYPE::GLISS_TYPE:
                 set(idx, GlissandoType(e.readText().toInt()));
                 break;
+            case P_TYPE::TIMESIG_PLACEMENT:
+                set(idx, TConv::fromXml(e.readAsciiText(), TimeSigPlacement::NORMAL));
+                break;
+            case P_TYPE::TIMESIG_STYLE:
+                set(idx, TConv::fromXml(e.readAsciiText(), TimeSigStyle::NORMAL));
+                break;
+            case P_TYPE::TIMESIG_MARGIN:
+                set(idx, TConv::fromXml(e.readAsciiText(), TimeSigVSMargin::RIGHT_ALIGN_TO_BARLINE));
+                break;
             default:
                 ASSERT_X(u"unhandled type " + String::number(int(type)));
             }
@@ -299,6 +308,8 @@ bool MStyle::read(IODevice* device, bool ign)
             readVersion(e.attribute("version"));
             while (e.readNextStartElement()) {
                 if (e.name() == "Style") {
+                    m_preset = TConv::fromXml(e.asciiAttribute("preset", "Default"), ScoreStylePreset::DEFAULT);
+                    m_presetEdited = e.attribute("edited", String(u"false")) == "true";
                     read(e, nullptr);
                 } else {
                     e.unknown();
@@ -528,8 +539,9 @@ void MStyle::read(XmlReader& e, compat::ReadChordListHook* readChordListHook)
     }
 
     if (m_version < 450) {
-        // Doesn't exist before 4.5. Default to false for compatibility.
+        // Didn't exist before 4.5. Default to false for compatibility.
         set(Sid::scaleRythmicSpacingForSmallNotes, false);
+        set(Sid::maskBarlinesForText, false);
     }
 
     if (m_version < 420 && !MScore::testMode) {
@@ -555,7 +567,17 @@ bool MStyle::write(IODevice* device)
 
 void MStyle::save(XmlWriter& xml, bool optimize)
 {
-    xml.startElement("Style");
+    muse::XmlStreamWriter::Attributes attributes;
+
+    if (preset() != ScoreStylePreset::DEFAULT) {
+        attributes.push_back({ "preset", TConv::toXml(preset()) });
+    }
+
+    if (presetEdited()) {
+        attributes.push_back({ "edited", String(u"true") });
+    }
+
+    xml.startElement("Style", attributes);
 
     for (const StyleDef::StyleValue& st : StyleDef::styleValues) {
         Sid idx = st.styleIdx();
@@ -583,6 +605,12 @@ void MStyle::save(XmlWriter& xml, bool optimize)
             xml.tag(st.name(), TConv::toXml(value(idx).value<TiePlacement>()));
         } else if (P_TYPE::TIE_DOTS_PLACEMENT == type) {
             xml.tag(st.name(), TConv::toXml(value(idx).value<TieDotsPlacement>()));
+        } else if (P_TYPE::TIMESIG_PLACEMENT == type) {
+            xml.tag(st.name(), TConv::toXml(value(idx).value<TimeSigPlacement>()));
+        } else if (P_TYPE::TIMESIG_STYLE == type) {
+            xml.tag(st.name(), TConv::toXml(value(idx).value<TimeSigStyle>()));
+        } else if (P_TYPE::TIMESIG_MARGIN == type) {
+            xml.tag(st.name(), TConv::toXml(value(idx).value<TimeSigVSMargin>()));
         } else {
             PropertyValue val = value(idx);
             //! NOTE for compatibility

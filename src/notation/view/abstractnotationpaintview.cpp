@@ -82,7 +82,8 @@ void AbstractNotationPaintView::load()
     m_inputController = std::make_unique<NotationViewInputController>(this, iocContext());
     m_playbackCursor = std::make_unique<PlaybackCursor>(iocContext());
     m_playbackCursor->setVisible(false);
-    m_noteInputCursor = std::make_unique<NoteInputCursor>();
+    m_noteInputCursor = std::make_unique<NoteInputCursor>(configuration()->thinNoteInputCursor());
+    m_ruler = std::make_unique<NotationRuler>(iocContext());
 
     m_loopInMarker = std::make_unique<LoopMarker>(LoopBoundaryType::LoopIn, iocContext());
     m_loopOutMarker = std::make_unique<LoopMarker>(LoopBoundaryType::LoopOut, iocContext());
@@ -229,8 +230,7 @@ void AbstractNotationPaintView::onCurrentNotationChanged()
 void AbstractNotationPaintView::onLoadNotation(INotationPtr)
 {
     if (viewport().isValid() && !m_notation->viewState()->isMatrixInited()) {
-        m_inputController->initZoom();
-        m_inputController->initCanvasPos();
+        initZoomAndPosition();
     }
 
     if (publishMode()) {
@@ -342,6 +342,10 @@ void AbstractNotationPaintView::onUnloadNotation(INotationPtr)
     }
 }
 
+void AbstractNotationPaintView::initZoomAndPosition()
+{
+}
+
 void AbstractNotationPaintView::setMatrix(const Transform& matrix)
 {
     if (m_matrix == matrix) {
@@ -390,8 +394,7 @@ void AbstractNotationPaintView::onViewSizeChanged()
 
     if (viewport().isValid()) {
         if (!notation()->viewState()->isMatrixInited()) {
-            m_inputController->initZoom();
-            m_inputController->initCanvasPos();
+            initZoomAndPosition();
         } else {
             m_inputController->updateZoomAfterSizeChange();
         }
@@ -421,6 +424,11 @@ void AbstractNotationPaintView::updateLoopMarkers()
     m_loopOutMarker->setVisible(loop.enabled);
 
     scheduleRedraw();
+}
+
+NotationViewInputController* AbstractNotationPaintView::inputController() const
+{
+    return m_inputController.get();
 }
 
 INotationPtr AbstractNotationPaintView::notation() const
@@ -604,7 +612,17 @@ void AbstractNotationPaintView::paint(QPainter* qp)
     bool isPrinting = publishMode() || m_inputController->readonly();
     notation()->painting()->paintView(painter, toLogical(rect), isPrinting);
 
-    m_noteInputCursor->paint(painter);
+    INotationNoteInputPtr noteInput = notationNoteInput();
+
+    if (noteInput->isNoteInputMode()) {
+        if (noteInput->usingNoteInputMethod(NoteInputMethod::BY_DURATION)
+            && !configuration()->useNoteInputCursorInInputByDuration()) {
+            m_ruler->paint(painter, noteInput->state());
+        } else {
+            m_noteInputCursor->paint(painter);
+        }
+    }
+
     m_loopInMarker->paint(painter);
     m_loopOutMarker->paint(painter);
 

@@ -10485,7 +10485,7 @@ Ova akcija neće obrisati niti jedan od vaših notnih zapisa.</translation>
     </message>
     <message>
         <location filename="../../src/appshell/qml/AboutDialog.qml" line="140"/>
-        <source>Copyright © 1999-2024 MuseScore Limited.
+        <source>Copyright © 1999-2025 MuseScore Limited.
 Published under the &lt;a href=&quot;%1&quot;&gt;GNU General Public License version 3&lt;/a&gt;.</source>
         <translation type="unfinished"/>
     </message>
@@ -27222,7 +27222,7 @@ nije uspjelo.</translation>
     <message>
         <location filename="../../src/playback/view/internal/mixerchannelitem.cpp" line="62"/>
         <source>Mixer channel panel %1</source>
-        <translation>Panel kanala miksera %1 </translation>
+        <translation>Panel kanala miksera %1</translation>
     </message>
     <message>
         <location filename="../../src/playback/view/internal/mixerchannelitem.cpp" line="675"/>

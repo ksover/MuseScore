@@ -150,16 +150,24 @@ NoteVal Score::noteValForPosition(Position pos, AccidentalType at, bool& error)
     return nval;
 }
 
-//---------------------------------------------------------
-//   addPitch
-//---------------------------------------------------------
+Note* Score::addPitch(NoteVal& nval, bool addToPreviousChord, InputState* externalInputState)
+{
+    AddToChord addType = addToPreviousChord ? AddToChord::AtPreviousPosition : AddToChord::None;
+    return addPitch(nval, addType, externalInputState);
+}
 
-Note* Score::addPitch(NoteVal& nval, bool addFlag, InputState* externalInputState)
+Note* Score::addPitch(NoteVal& nval, AddToChord addFlag, InputState* externalInputState)
 {
     InputState& is = externalInputState ? (*externalInputState) : m_is;
 
-    if (addFlag) {
-        ChordRest* c = toChordRest(is.lastSegment()->element(is.track()));
+    if (addFlag != AddToChord::None) {
+        ChordRest* c = nullptr;
+        if (addFlag == AddToChord::AtPreviousPosition) {
+            c = toChordRest(is.lastSegment()->element(is.track()));
+        } else if (addFlag == AddToChord::AtCurrentPosition) {
+            c = is.cr();
+        }
+
         if (c == 0 || !c->isChord()) {
             LOGD("Score::addPitch: cr %s", c ? c->typeName() : "zero");
             return 0;
@@ -211,8 +219,9 @@ Note* Score::addPitch(NoteVal& nval, bool addFlag, InputState* externalInputStat
     }
 
     if (!is.cr()) {
-        return 0;
+        handleOverlappingChordRest(is);
     }
+
     Measure* measure = is.segment()->measure();
     if (measure->isMeasureRepeatGroup(track2staff(track))) {
         MeasureRepeat* mr = measure->measureRepeatElement(track2staff(track));
@@ -244,7 +253,7 @@ Note* Score::addPitch(NoteVal& nval, bool addFlag, InputState* externalInputStat
         note->setTrack(chord->track());
         note->setNval(nval);
         lastTiedNote = note;
-        if (!addFlag) {
+        if (addFlag == AddToChord::None) {
             std::vector<Note*> notes = chord->notes();
             // break all ties into current chord
             // these will exist only if user explicitly moved cursor to a tied-into note
@@ -301,7 +310,7 @@ Note* Score::addPitch(NoteVal& nval, bool addFlag, InputState* externalInputStat
         select(lastTiedNote);
     } else if (!is.usingNoteEntryMethod(NoteEntryMethod::REPITCH)) {
         Segment* seg = setNoteRest(
-            is.segment(), track, nval, duration, stemDirection, /* forceAccidental */ false, {}, /* rhythmic */ false,
+            is.segment(), track, nval, duration, stemDirection, /* forceAccidental */ false, is.articulationIds(), /* rhythmic */ false,
             externalInputState);
         if (seg) {
             note = toChord(seg->element(track))->upNote();
@@ -456,29 +465,7 @@ Ret Score::putNote(const Position& p, bool replace)
 
     // If there's an overlapping ChordRest at the current input position, shorten it...
     if (!cr) {
-        MasterScore* ms = masterScore();
-        ChordRest* prevCr = m_is.segment()->nextChordRest(m_is.track(), /*backwards*/ true, /*stopAtMeasureBoundary*/ true);
-        if (prevCr && prevCr->endTick() > m_is.tick()) {
-            const Fraction overlapDuration = prevCr->endTick() - m_is.tick();
-            const Fraction desiredDuration = prevCr->ticks() - overlapDuration;
-
-            const InputState inputStateToRestore = m_is; // because changeCRlen will alter the input state
-            ms->changeCRlen(prevCr, desiredDuration, /*fillWithRest*/ false);
-
-            // Fill the difference with tied notes if necessary...
-            const Fraction difference = desiredDuration - prevCr->ticks();
-            if (prevCr->isChord() && difference.isNotZero()) {
-                Fraction startTick = prevCr->endTick();
-                Chord* prevChord = toChord(prevCr);
-                const std::vector<TDuration> durationList = toDurationList(difference, true);
-                for (const TDuration& dur : durationList) {
-                    prevChord = ms->addChord(startTick, dur, prevChord, /*genTie*/ bool(prevChord), prevChord->tuplet());
-                    startTick += dur.fraction();
-                }
-            }
-
-            m_is = inputStateToRestore;
-        }
+        handleOverlappingChordRest(m_is);
     }
 
     auto checkTied = [&](){
@@ -585,6 +572,33 @@ Ret Score::putNote(const Position& p, bool replace)
     }
 
     return ret;
+}
+
+void Score::handleOverlappingChordRest(InputState& inputState)
+{
+    MasterScore* ms = masterScore();
+    ChordRest* prevCr = inputState.segment()->nextChordRest(inputState.track(), /*backwards*/ true, /*stopAtMeasureBoundary*/ true);
+    if (prevCr && prevCr->endTick() > inputState.tick()) {
+        const Fraction overlapDuration = prevCr->endTick() - inputState.tick();
+        const Fraction desiredDuration = prevCr->ticks() - overlapDuration;
+
+        const InputState inputStateToRestore = inputState; // because changeCRlen will alter the input state
+        ms->changeCRlen(prevCr, desiredDuration, /*fillWithRest*/ true);
+
+        // Fill the difference with tied notes if necessary...
+        const Fraction difference = desiredDuration - prevCr->ticks();
+        if (prevCr->isChord() && difference.isNotZero()) {
+            Fraction startTick = prevCr->endTick();
+            Chord* prevChord = toChord(prevCr);
+            const std::vector<TDuration> durationList = toDurationList(difference, true);
+            for (const TDuration& dur : durationList) {
+                prevChord = ms->addChord(startTick, dur, prevChord, /*genTie*/ bool(prevChord), prevChord->tuplet());
+                startTick += dur.fraction();
+            }
+        }
+
+        inputState = inputStateToRestore;
+    }
 }
 
 //---------------------------------------------------------

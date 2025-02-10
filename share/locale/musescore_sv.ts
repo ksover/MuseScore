@@ -6352,7 +6352,7 @@ textens x-höjd):</translation>
         <location filename="../../src/notation/view/widgets/voicing_select.ui" line="98"/>
         <source>Drop two</source>
         <extracomment>2nd note an octave down</extracomment>
-        <translation>Oktav ner</translation>
+        <translation>Drop two</translation>
     </message>
     <message>
         <location filename="../../src/notation/view/widgets/voicing_select.ui" line="103"/>
@@ -6779,7 +6779,7 @@ textens x-höjd):</translation>
     <message>
         <location filename="../../src/notation/internal/notationuiactions.cpp" line="382"/>
         <source>Similar in this range</source>
-        <translation>Liknande i samma intervall</translation>
+        <translation>Liknande i detta intervall</translation>
     </message>
     <message>
         <location filename="../../src/notation/internal/notationuiactions.cpp" line="388"/>
@@ -8847,7 +8847,7 @@ textens x-höjd):</translation>
     <message>
         <location filename="../../src/appshell/internal/applicationuiactions.cpp" line="65"/>
         <source>&amp;About MuseScore Studio…</source>
-        <translation>&amp;Om MuseScore Studio </translation>
+        <translation>&amp;Om MuseScore Studio…</translation>
     </message>
     <message>
         <location filename="../../src/appshell/internal/applicationuiactions.cpp" line="70"/>
@@ -10487,9 +10487,9 @@ This action will not delete any of your scores.</source>
     </message>
     <message>
         <location filename="../../src/appshell/qml/AboutDialog.qml" line="140"/>
-        <source>Copyright © 1999-2024 MuseScore Limited.
+        <source>Copyright © 1999-2025 MuseScore Limited.
 Published under the &lt;a href=&quot;%1&quot;&gt;GNU General Public License version 3&lt;/a&gt;.</source>
-        <translation>Copyright © 1999-2024 MuseScore Limited.
+        <translation>Copyright © 1999-2025 MuseScore Limited.
 Published under the &lt;a href=&quot;%1&quot;&gt;GNU General Public License version 3&lt;/a&gt;.</translation>
     </message>
     <message>
@@ -17216,12 +17216,12 @@ Band %1 på strängar %2</translation>
     <message>
         <location filename="../../src/engraving/types/symnames.cpp" line="3724"/>
         <source>Stress above</source>
-        <translation>Betonad ovanför</translation>
+        <translation>Betoning ovanför</translation>
     </message>
     <message>
         <location filename="../../src/engraving/types/symnames.cpp" line="3725"/>
         <source>Stress below</source>
-        <translation>Betonad nedanför</translation>
+        <translation>Betoning nedanför</translation>
     </message>
     <message>
         <location filename="../../src/engraving/types/symnames.cpp" line="3726"/>
@@ -17311,7 +17311,7 @@ Band %1 på strängar %2</translation>
     <message>
         <location filename="../../src/engraving/types/symnames.cpp" line="3744"/>
         <source>Tick barline</source>
-        <translation>Tjockt taktstreck</translation>
+        <translation>Kort taktstreck</translation>
     </message>
     <message>
         <location filename="../../src/engraving/types/symnames.cpp" line="3790"/>
@@ -17362,7 +17362,7 @@ Band %1 på strängar %2</translation>
     <message>
         <location filename="../../src/engraving/types/symnames.cpp" line="3812"/>
         <source>Curved caesura</source>
-        <translation>Välvd cesur</translation>
+        <translation>Svängd cesur</translation>
     </message>
     <message>
         <location filename="../../src/engraving/types/symnames.cpp" line="3813"/>
@@ -17812,7 +17812,7 @@ Band %1 på strängar %2</translation>
     <message>
         <location filename="../../src/engraving/types/symnames.cpp" line="5673"/>
         <source>Segno (serpent)</source>
-        <translation>Segno</translation>
+        <translation>Segno (serpent)</translation>
     </message>
     <message>
         <location filename="../../src/engraving/types/symnames.cpp" line="5751"/>
@@ -17922,7 +17922,7 @@ Band %1 på strängar %2</translation>
     <message>
         <location filename="../../src/engraving/types/symnames.cpp" line="6069"/>
         <source>Up mordent</source>
-        <translation>Upp-mordent</translation>
+        <translation>Mordent uppåt</translation>
     </message>
     <message>
         <location filename="../../src/engraving/types/symnames.cpp" line="6070"/>
@@ -17932,7 +17932,7 @@ Band %1 på strängar %2</translation>
     <message>
         <location filename="../../src/engraving/types/symnames.cpp" line="6072"/>
         <source>Down mordent</source>
-        <translation>Ner-mordent</translation>
+        <translation>Mordent ner</translation>
     </message>
     <message>
         <location filename="../../src/engraving/types/symnames.cpp" line="6073"/>
@@ -17942,7 +17942,7 @@ Band %1 på strängar %2</translation>
     <message>
         <location filename="../../src/engraving/types/symnames.cpp" line="6074"/>
         <source>Line prall</source>
-        <translation>Linje-prall</translation>
+        <translation>Prall-linje</translation>
     </message>
     <message>
         <location filename="../../src/engraving/types/symnames.cpp" line="6088"/>
@@ -18074,7 +18074,7 @@ Band %1 på strängar %2</translation>
     <message>
         <location filename="../../src/engraving/types/typesconv.cpp" line="2545"/>
         <source>Downprall line</source>
-        <translation>Nedåtprall linje</translation>
+        <translation>Nedåtprall, linje</translation>
     </message>
     <message>
         <location filename="../../src/engraving/types/typesconv.cpp" line="2546"/>
@@ -18382,7 +18382,7 @@ Band %1 på strängar %2</translation>
     <message>
         <location filename="../../src/framework/global/dataformatter.cpp" line="58"/>
         <source>Last week</source>
-        <translation>Senaste veckan</translation>
+        <translation>Förra veckan</translation>
     </message>
     <message numerus="yes">
         <location filename="../../src/framework/global/dataformatter.cpp" line="62"/>
@@ -18911,7 +18911,7 @@ Band %1 på strängar %2</translation>
         <location filename="../../src/framework/learn/qml/Muse/Learn/internal/Playlist.qml" line="142"/>
         <location filename="../../src/musesounds/qml/MuseScore/MuseSounds/MuseSoundsPage.qml" line="172"/>
         <source>Please check your internet connection or try again later.</source>
-        <translation>Kontrollera din internetanslutning, eller försök igen senare.</translation>
+        <translation>Kontrollera din internetanslutning eller försök igen senare.</translation>
     </message>
 </context>
 <context>
@@ -22228,7 +22228,7 @@ Dessutom har Mastering MuseScore en hjälpsam gemenskap bestående av musiker, m
     <message>
         <location filename="../../src/musesounds/qml/MuseScore/MuseSounds/internal/SoundLibraryItem.qml" line="120"/>
         <source>Get it now</source>
-        <translation>Få dem nu</translation>
+        <translation>Hämta nu</translation>
     </message>
     <message>
         <location filename="../../src/musesounds/qml/MuseScore/MuseSounds/MuseSoundsPage.qml" line="167"/>

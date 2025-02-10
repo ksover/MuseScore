@@ -69,7 +69,7 @@ elseif(OS_IS_MAC)
     set(MACOSX_BUNDLE_LONG_VERSION_STRING ${MUSE_APP_VERSION})
     set(MACOSX_BUNDLE_SHORT_VERSION_STRING ${MUSE_APP_VERSION})
     set(MACOSX_BUNDLE_BUNDLE_VERSION ${CMAKE_BUILD_NUMBER})
-    set(MACOSX_BUNDLE_COPYRIGHT "Copyright © 1999-2024 MuseScore Limited. Published under the GNU General Public License version 3.")
+    set(MACOSX_BUNDLE_COPYRIGHT "Copyright © 1999-2025 MuseScore Limited. Published under the GNU General Public License version 3.")
 
     set(CMAKE_INSTALL_RPATH ${QT_INSTALL_LIBS})
     if (MUE_COMPILE_MACOS_PRECOMPILED_DEPS_PATH)
@@ -157,6 +157,10 @@ if (MUSE_MODULE_UI)
     list(APPEND LINK_LIB muse::ui)
     list(APPEND LINK_LIB muse::uicomponents)
     list(APPEND LINK_LIB muse::dockwindow)
+endif()
+
+if (MUSE_MODULE_TOURS)
+    list(APPEND LINK_LIB muse::tours)
 endif()
 
 if (MUSE_MODULE_AUDIOPLUGINS)
@@ -271,6 +275,13 @@ add_executable(MuseScoreStudio
 
 set_target_properties(MuseScoreStudio PROPERTIES OUTPUT_NAME ${EXECUTABLE_NAME})
 
+if (MUSE_ENABLE_UNIT_TESTS_CODE_COVERAGE)
+    set(COVERAGE_FLAGS -fprofile-arcs -ftest-coverage --coverage)
+    set(COVERAGE_LINK_FLAGS -lgcov --coverage)
+    target_compile_options(MuseScoreStudio PRIVATE ${COVERAGE_FLAGS})
+    target_link_options(MuseScoreStudio PRIVATE ${COVERAGE_LINK_FLAGS})
+endif()
+
 if (OS_IS_MAC)
     set_target_properties(MuseScoreStudio PROPERTIES
         MACOSX_BUNDLE_INFO_PLIST ${PROJECT_SOURCE_DIR}/buildscripts/packaging/macOS/Info.plist.in
@@ -299,7 +310,7 @@ endif(OS_IS_WASM)
 ###########################################
 
 if (NOT CC_IS_EMSCRIPTEN)
-    target_link_libraries(MuseScoreStudio ${LINK_LIB} )
+    target_link_libraries(MuseScoreStudio ${LINK_LIB} ${COVERAGE_LINK_FLAGS})
 else()
     target_link_libraries(MuseScoreStudio PRIVATE ${QT_LIBRARIES})
 

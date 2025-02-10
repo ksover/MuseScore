@@ -82,18 +82,28 @@ public:
     QColor loopMarkerColor() const override;
     int cursorOpacity() const override;
 
+    bool thinNoteInputCursor() const override;
+
     QColor selectionColor(engraving::voice_idx_t voiceIndex = 0) const override;
 
     QColor dropRectColor() const override;
 
+    muse::draw::Color noteInputPreviewColor() const override;
+
+    bool useNoteInputCursorInInputByDuration() const override;
+    void setUseNoteInputCursorInInputByDuration(bool use) override;
+    muse::async::Notification useNoteInputCursorInInputByDurationChanged() const override;
+
     int selectionProximity() const override;
     void setSelectionProximity(int proximity) override;
+    muse::async::Channel<int> selectionProximityChanged() const override;
 
     ZoomType defaultZoomType() const override;
     void setDefaultZoomType(ZoomType zoomType) override;
 
     int defaultZoom() const override;
     void setDefaultZoom(int zoomPercentage) override;
+    muse::async::Notification defaultZoomChanged() const override;
 
     qreal scalingFromZoomPercentage(int zoomPercentage) const override;
     int zoomPercentageFromScaling(qreal scaling) const override;
@@ -102,6 +112,7 @@ public:
 
     int mouseZoomPrecision() const override;
     void setMouseZoomPrecision(int precision) override;
+    muse::async::Notification mouseZoomPrecisionChanged() const override;
 
     std::string fontFamily() const override;
     int fontSize() const override;
@@ -112,12 +123,27 @@ public:
 
     muse::io::path_t defaultStyleFilePath() const override;
     void setDefaultStyleFilePath(const muse::io::path_t& path) override;
+    muse::async::Channel<muse::io::path_t> defaultStyleFilePathChanged() const override;
 
     muse::io::path_t partStyleFilePath() const override;
     void setPartStyleFilePath(const muse::io::path_t& path) override;
+    muse::async::Channel<muse::io::path_t> partStyleFilePathChanged() const override;
+
+    NoteInputMethod defaultNoteInputMethod() const override;
+    void setDefaultNoteInputMethod(NoteInputMethod method) override;
+    muse::async::Notification defaultNoteInputMethodChanged() const override;
+
+    bool addAccidentalDotsArticulationsToNextNoteEntered() const override;
+    void setAddAccidentalDotsArticulationsToNextNoteEntered(bool value) override;
+    muse::async::Notification addAccidentalDotsArticulationsToNextNoteEnteredChanged() const override;
 
     bool isMidiInputEnabled() const override;
     void setIsMidiInputEnabled(bool enabled) override;
+    muse::async::Notification isMidiInputEnabledChanged() const override;
+
+    bool startNoteInputAtSelectionWhenPressingMidiKey() const override;
+    void setStartNoteInputAtSelectionWhenPressingMidiKey(bool value) override;
+    muse::async::Notification startNoteInputAtSelectionWhenPressingMidiKeyChanged() const override;
 
     bool isAutomaticallyPanEnabled() const override;
     void setIsAutomaticallyPanEnabled(bool enabled) override;
@@ -132,6 +158,10 @@ public:
     bool isPlayChordSymbolsEnabled() const override;
     void setIsPlayChordSymbolsEnabled(bool enabled) override;
     muse::async::Notification isPlayChordSymbolsChanged() const override;
+
+    bool isPlayPreviewNotesInInputByDuration() const override;
+    void setIsPlayPreviewNotesInInputByDuration(bool play) override;
+    muse::async::Notification isPlayPreviewNotesInInputByDurationChanged() const override;
 
     bool isMetronomeEnabled() const override;
     void setIsMetronomeEnabled(bool enabled) override;
@@ -151,15 +181,19 @@ public:
 
     bool colorNotesOutsideOfUsablePitchRange() const override;
     void setColorNotesOutsideOfUsablePitchRange(bool value) override;
+    muse::async::Channel<bool> colorNotesOutsideOfUsablePitchRangeChanged() const override;
 
     bool warnGuitarBends() const override;
     void setWarnGuitarBends(bool value) override;
+    muse::async::Channel<bool> warnGuitarBendsChanged() const override;
 
     int delayBetweenNotesInRealTimeModeMilliseconds() const override;
     void setDelayBetweenNotesInRealTimeModeMilliseconds(int delayMs) override;
+    muse::async::Channel<int> delayBetweenNotesInRealTimeModeMillisecondsChanged() const override;
 
     int notePlayDurationMilliseconds() const override;
     void setNotePlayDurationMilliseconds(int durationMs) override;
+    muse::async::Channel<int> notePlayDurationMillisecondsChanged() const override;
 
     void setTemplateModeEnabled(std::optional<bool> enabled) override;
     void setTestModeEnabled(std::optional<bool> enabled) override;
@@ -216,6 +250,7 @@ public:
 
     muse::io::path_t styleFileImportPath() const override;
     void setStyleFileImportPath(const muse::io::path_t& path) override;
+    muse::async::Channel<std::string> styleFileImportPathChanged() const override;
 
     int styleDialogLastPageIndex() const override;
     void setStyleDialogLastPageIndex(int value) override;
@@ -235,12 +270,27 @@ private:
     muse::async::Notification m_backgroundChanged;
     muse::async::Notification m_foregroundChanged;
 
+    muse::async::Notification m_defaultNoteInputMethodChanged;
+    muse::async::Notification m_addAccidentalDotsArticulationsToNextNoteEnteredChanged;
+    muse::async::Notification m_useNoteInputCursorInInputByDurationChanged;
+    muse::async::Notification m_isMidiInputEnabledChanged;
+    muse::async::Notification m_startNoteInputAtSelectionWhenPressingMidiKeyChanged;
+
+    muse::async::Notification m_defaultZoomChanged;
+    muse::async::Notification m_mouseZoomPrecisionChanged;
     muse::async::Channel<muse::Orientation> m_canvasOrientationChanged;
     muse::async::Channel<muse::io::path_t> m_userStylesPathChanged;
     muse::async::Notification m_scoreOrderListPathsChanged;
     muse::async::Notification m_isLimitCanvasScrollAreaChanged;
+    muse::async::Channel<int> m_selectionProximityChanged;
+    muse::async::Channel<bool> m_colorNotesOutsideOfUsablePitchRangeChanged;
+    muse::async::Channel<bool> m_warnGuitarBendsChanged;
+    muse::async::Channel<int> m_delayBetweenNotesInRealTimeModeMillisecondsChanged;
+    muse::async::Channel<int> m_notePlayDurationMillisecondsChanged;
+    muse::async::Channel<std::string> m_styleFileImportPathChanged;
     muse::async::Notification m_isPlayRepeatsChanged;
     muse::async::Notification m_isPlayChordSymbolsChanged;
+    muse::async::Notification m_isPlayNotesPreviewInInputByDurationChanged;
     muse::ValCh<int> m_pianoKeyboardNumberOfKeys;
     muse::ValCh<bool> m_midiInputUseWrittenPitch;
     muse::async::Channel<QColor> m_anchorColorChanged;

@@ -143,8 +143,14 @@ public:
 
     static Page* createPage(RootItem* parent, bool isAccessibleEnabled = true);
 
+    static Parenthesis* createParenthesis(Segment* parent, bool isAccessibleEnabled = true);
+    static Parenthesis* copyParenthesis(const Parenthesis& src);
+
     static PartialTie* createPartialTie(Note* parent, bool isAccessibleEnabled = true);
     static PartialTie* copyPartialTie(const PartialTie& src);
+
+    static PartialLyricsLine* createPartialLyricsLine(EngravingItem* parent, bool isAccessibleEnabled = true);
+    static PartialLyricsLine* copyPartialLyricsLine(const PartialLyricsLine& src);
 
     static Rest* createRest(Segment* parent, bool isAccessibleEnabled = true);
     static Rest* createRest(Segment* parent, const TDuration& t, bool isAccessibleEnabled = true);

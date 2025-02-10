@@ -25,6 +25,7 @@
 #include "engraving/dom/dynamic.h"
 #include "engraving/dom/factory.h"
 #include "engraving/types/symnames.h"
+#include "engraving/types/typesconv.h"
 
 #include "log.h"
 
@@ -63,14 +64,14 @@ static const QList<QList<DynamicPopupModel::PageItem> > DYN_POPUP_PAGES = {
         { DynamicType::PPPPPP, 74, 2.0, DynamicPopupModel::Dynamic },
         { DynamicType::FFFFFF, 60, 2.5, DynamicPopupModel::Dynamic },
     },
-    {   // Page 6
+    {   // Page 6 - Hairpins
+        { DynamicType::OTHER,  62, 0.0, DynamicPopupModel::Crescendo },
+        { DynamicType::OTHER,  62, 0.0, DynamicPopupModel::Decrescendo },
+    },
+    {   // Page 7
         { DynamicType::PPPPP,  64, 2.0, DynamicPopupModel::Dynamic },
         { DynamicType::PPPP,   52, 2.0, DynamicPopupModel::Dynamic },
         { DynamicType::PPP,    44, 2.0, DynamicPopupModel::Dynamic },
-    },
-    {   // Page 7 - Hairpins
-        { DynamicType::OTHER,  62, 0.0, DynamicPopupModel::Crescendo },
-        { DynamicType::OTHER,  62, 0.0, DynamicPopupModel::Decrescendo },
     },
 };
 
@@ -136,6 +137,7 @@ void DynamicPopupModel::init()
         for (const DynamicPopupModel::PageItem& item : page) {
             QVariantMap variantMap {
                 { "text", xmlTextToQString(Dynamic::dynamicText(item.dynType).toStdString(), engravingFont) },
+                { "accessibleName", TConv::userName(item.dynType).translated().toQString() },
                 { "width", item.width },
                 { "offset", item.offset },
                 { "type", item.itemType }

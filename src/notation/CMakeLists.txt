@@ -134,6 +134,8 @@ set(MODULE_SRC
     ${CMAKE_CURRENT_LIST_DIR}/view/playbackcursor.h
     ${CMAKE_CURRENT_LIST_DIR}/view/noteinputcursor.cpp
     ${CMAKE_CURRENT_LIST_DIR}/view/noteinputcursor.h
+    ${CMAKE_CURRENT_LIST_DIR}/view/notationruler.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/view/notationruler.h
     ${CMAKE_CURRENT_LIST_DIR}/view/loopmarker.cpp
     ${CMAKE_CURRENT_LIST_DIR}/view/loopmarker.h
     ${CMAKE_CURRENT_LIST_DIR}/view/notationswitchlistmodel.cpp
@@ -178,6 +180,9 @@ set(MODULE_SRC
     ${CMAKE_CURRENT_LIST_DIR}/view/selectionfiltermodel.h
     ${CMAKE_CURRENT_LIST_DIR}/view/editgridsizedialogmodel.cpp
     ${CMAKE_CURRENT_LIST_DIR}/view/editgridsizedialogmodel.h
+
+    ${CMAKE_CURRENT_LIST_DIR}/view/editpercussionshortcutmodel.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/view/editpercussionshortcutmodel.h
 
     ${CMAKE_CURRENT_LIST_DIR}/view/percussionpanel/percussionpanelmodel.cpp
     ${CMAKE_CURRENT_LIST_DIR}/view/percussionpanel/percussionpanelmodel.h

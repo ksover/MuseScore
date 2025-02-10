@@ -71,6 +71,7 @@ enum class ElementType {
     STAFF,
     SCORE,
     TEXT,
+    LAYOUT_BREAK,
     MEASURE_NUMBER,
     MMREST_RANGE,
     INSTRUMENT_NAME,
@@ -149,9 +150,9 @@ enum class ElementType {
     VOLTA_SEGMENT,
     PEDAL_SEGMENT,
     LYRICSLINE_SEGMENT,
+    PARTIAL_LYRICSLINE_SEGMENT,
     GLISSANDO_SEGMENT,
     NOTELINE_SEGMENT,
-    LAYOUT_BREAK,
     SYSTEM_LOCK_INDICATOR,
     SPACER,
     STAFF_STATE,
@@ -181,6 +182,7 @@ enum class ElementType {
     TEXTLINE_BASE,
     NOTELINE,
     LYRICSLINE,
+    PARTIAL_LYRICSLINE,
     GLISSANDO,
     BRACKET,
     SEGMENT,
@@ -210,6 +212,7 @@ enum class ElementType {
     TREMOLO_TWOCHORD,
     TREMOLO_SINGLECHORD,
     TIME_TICK_ANCHOR,
+    PARENTHESIS,
 
     ROOT_ITEM,
     DUMMY,
@@ -1087,6 +1090,24 @@ enum class TieDotsPlacement {
     AFTER_DOTS
 };
 
+enum class TimeSigPlacement : char {
+    NORMAL,
+    ABOVE_STAVES,
+    ACROSS_STAVES
+};
+
+enum class TimeSigStyle : char {
+    NORMAL,
+    NARROW,
+    LARGE
+};
+
+enum class TimeSigVSMargin : char {
+    HANG_INTO_MARGIN,
+    RIGHT_ALIGN_TO_BARLINE,
+    CREATE_SPACE,
+};
+
 //---------------------------------------------------------
 //   Key
 //---------------------------------------------------------
@@ -1183,6 +1204,16 @@ struct std::hash<mu::engraving::InstrumentTrackId>
         std::size_t h2 = std::hash<muse::String> {}(s.instrumentId);
         return h1 ^ (h2 << 1);
     }
+};
+
+enum class ScoreStylePreset {
+    DEFAULT = 0,
+    MSN_16MM,
+    MSN_18MM,
+    MSN_20MM,
+    MSN_22MM,
+    MSN_25MM,
+    MAX_PRESET
 };
 
 #ifndef NO_QT_SUPPORT

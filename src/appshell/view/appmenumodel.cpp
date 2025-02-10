@@ -442,7 +442,10 @@ MenuItem* AppMenuModel::makeDiagnosticsMenu()
 
     if (globalConfiguration()->devModeEnabled()) {
         MenuItemList actionsItems {
-            makeMenuItem("diagnostic-show-actions")
+            makeMenuItem("diagnostic-show-actions"),
+            makeMenuItem("action://diagnostic/actions/query"),
+            makeMenuItem("action://diagnostic/actions/query_params1?param1=val1"),
+            makeMenuItem("action://diagnostic/actions/query_params2?param1=val1")
         };
 
         MenuItemList accessibilityItems {
@@ -460,6 +463,7 @@ MenuItem* AppMenuModel::makeDiagnosticsMenu()
             makeMenuItem("color-segment-shapes"),
             makeMenuItem("show-skylines"),
             makeMenuItem("show-system-bounding-rects"),
+            makeMenuItem("show-element-masks"),
             makeMenuItem("show-corrupted-measures")
         };
 
@@ -471,11 +475,17 @@ MenuItem* AppMenuModel::makeDiagnosticsMenu()
             makeMenuItem("autobot-show-scripts"),
         };
 
+        MenuItemList vstItems {
+            makeMenuItem("vst-use-oldview"),
+            makeMenuItem("vst-use-newview"),
+        };
+
         items << makeMenu(TranslatableString("appshell/menu/diagnostics", "A&ctions"), actionsItems, "menu-actions")
               << makeMenu(TranslatableString("appshell/menu/diagnostics", "&Accessibility"), accessibilityItems, "menu-accessibility")
               << makeMenu(TranslatableString("appshell/menu/diagnostics", "&Engraving"), engravingItems, "menu-engraving")
               << makeMenu(TranslatableString("appshell/menu/diagnostics", "E&xtensions"), extensionsItems, "menu-extensions")
               << makeMenu(TranslatableString("appshell/menu/diagnostics", "Auto&bot"), autobotItems, "menu-autobot")
+              << makeMenu(TranslatableString("appshell/menu/diagnostics", "&VST"), vstItems, "menu-vst")
               << makeMenuItem("multiinstances-dev-show-info");
     }
 

@@ -99,6 +99,7 @@ const std::array<StyleDef::StyleValue, size_t(Sid::STYLES)> StyleDef::styleValue
     styleDef(lyricsMelismaForce,                         false),
     styleDef(lyricsMelismaMinLength,                     Spatium(1.0)),
     styleDef(lyricsDashPosAtStartOfSystem,               int(LyricsDashSystemStart::STANDARD)),
+    styleDef(lyricsAvoidBarlines,                        true),
 
     styleDef(lyricsOddFontFace,                          "Edwin"),
     styleDef(lyricsOddFontSize,                          10.0),
@@ -148,6 +149,7 @@ const std::array<StyleDef::StyleValue, size_t(Sid::STYLES)> StyleDef::styleValue
     styleDef(repeatBarTips,                              false),
     styleDef(startBarlineSingle,                         false),
     styleDef(startBarlineMultiple,                       true),
+    styleDef(maskBarlinesForText,                        true),
 
     styleDef(bracketWidth,                               Spatium(0.45)),
     styleDef(bracketDistance,                            Spatium(0.45)),
@@ -168,7 +170,6 @@ const std::array<StyleDef::StyleValue, size_t(Sid::STYLES)> StyleDef::styleValue
     styleDef(ambitusMargin,                              Spatium(0.5)),
 
     styleDef(timesigLeftMargin,                          Spatium(0.63)),
-    styleDef(timesigScale,                               ScaleF(1.0, 1.0)),
     styleDef(midClefKeyRightMargin,                      Spatium(1.0)),
     styleDef(clefKeyRightMargin,                         Spatium(0.8)),
     styleDef(clefKeyDistance,                            Spatium(0.75)),
@@ -181,6 +182,30 @@ const std::array<StyleDef::StyleValue, size_t(Sid::STYLES)> StyleDef::styleValue
 
     styleDef(clefBarlineDistance,                        Spatium(0.5)),
     styleDef(timesigBarlineDistance,                     Spatium(0.5)),
+
+    styleDef(timeSigPlacement,                           TimeSigPlacement::NORMAL),
+
+    styleDef(timeSigCenterOnBarline,                     true),
+    styleDef(timeSigVSMarginCentered,                    TimeSigVSMargin::HANG_INTO_MARGIN),
+    styleDef(timeSigVSMarginNonCentered,                 TimeSigVSMargin::RIGHT_ALIGN_TO_BARLINE),
+    styleDef(timeSigCenterAcrossStaveGroup,              false),
+
+    styleDef(timeSigNormalStyle,                         TimeSigStyle::NORMAL),
+    styleDef(timeSigNormalScale,                         ScaleF(1.0, 1.0)),
+    styleDef(timeSigNormalScaleLock,                     true),
+    styleDef(timeSigNormalNumDist,                       Spatium(0.0)),
+    styleDef(timeSigNormalY,                             Spatium(0.0)),
+    styleDef(timeSigAboveStyle,                          TimeSigStyle::NORMAL),
+    styleDef(timeSigAboveScale,                          ScaleF(2.0, 2.0)),
+    styleDef(timeSigAboveScaleLock,                      true),
+    styleDef(timeSigAboveNumDist,                        Spatium(0.1)),
+    styleDef(timeSigAboveY,                              Spatium(-1.0)),
+    styleDef(timeSigAcrossStyle,                         TimeSigStyle::NARROW),
+    styleDef(timeSigAcrossScale,                         ScaleF(4.0, 4.0)),
+    styleDef(timeSigAcrossScaleLock,                     true),
+    styleDef(timeSigAcrossNumDist,                       Spatium(0.1)),
+    styleDef(timeSigAcrossY,                             Spatium(0.0)),
+
     styleDef(useStraightNoteFlags,                       false),
     styleDef(stemWidth,                                  Spatium(0.10)),
     styleDef(shortenStem,                                true),
@@ -515,7 +540,7 @@ const std::array<StyleDef::StyleValue, size_t(Sid::STYLES)> StyleDef::styleValue
     styleDef(tieMidWidth,                                Spatium(.21)),
     styleDef(tieDottedWidth,                             Spatium(.10)),
     styleDef(minTieLength,                               Spatium(1.0)),
-    styleDef(minHangingTieLength,                        Spatium(1.0)),
+    styleDef(minHangingTieLength,                        Spatium(1.5)),
     styleDef(minStraightGlissandoLength,                 Spatium(1.2)),
     styleDef(minWigglyGlissandoLength,                   Spatium(2.0)),
     styleDef(slurMinDistance,                            Spatium(0.5)),
@@ -1751,6 +1776,19 @@ const std::array<StyleDef::StyleValue, size_t(Sid::STYLES)> StyleDef::styleValue
 
     styleDef(autoplaceEnabled,                           true),
     styleDef(defaultsVersion,                            Constants::MSC_VERSION),
+    styleDef(changesBeforeBarlineRepeats,                true),
+    styleDef(changesBeforeBarlineOtherJumps,             true),
+    styleDef(placeClefsBeforeRepeats,                    false),
+    styleDef(changesBetweenEndStartRepeat,               true),
+    styleDef(showCourtesiesRepeats,                      true),
+    styleDef(useParensRepeatCourtesies,                  true),
+    styleDef(showCourtesiesOtherJumps,                   true),
+    styleDef(useParensOtherJumpCourtesies,               true),
+    styleDef(showCourtesiesAfterCancellingRepeats,       true),
+    styleDef(useParensRepeatCourtesiesAfterCancelling,   true),
+    styleDef(showCourtesiesAfterCancellingOtherJumps,    true),
+    styleDef(useParensOtherJumpCourtesiesAfterCancelling, true),
+    styleDef(smallParens,                                true),
 } };
 
 #undef styleDef

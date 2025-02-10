@@ -554,6 +554,10 @@ DockPage {
                 Component.onDestruction: {
                     percussionPanel.toolbarComponent = null
                 }
+
+                onResizeRequested: function(newWidth, newHeight) {
+                    percussionPanel.resize(newWidth, newHeight)
+                }
             }
         }
     ]
@@ -569,7 +573,7 @@ DockPage {
         Component.onCompleted: {
             root.notationView = notationView.paintView
 
-            root.setDefaultNavigationControl(root.defaultNavigationControl)
+            root.setDefaultNavigationControl(notationView.defaultNavigationControl)
         }
 
         Component.onDestruction: {

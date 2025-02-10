@@ -96,6 +96,16 @@ muse::actions::ActionData MenuItem::args() const
     return m_args;
 }
 
+const muse::actions::ActionQuery& MenuItem::query() const
+{
+    return m_query;
+}
+
+void MenuItem::setQuery(const muse::actions::ActionQuery& query)
+{
+    m_query = query;
+}
+
 bool MenuItem::isValid() const
 {
     return !m_id.isEmpty();
@@ -219,6 +229,11 @@ QString MenuItem::description_property() const
 int MenuItem::icon_property() const
 {
     return static_cast<int>(m_action.iconCode);
+}
+
+QString MenuItem::iconColor_property() const
+{
+    return m_action.iconColor;
 }
 
 bool MenuItem::enabled_property() const

@@ -110,6 +110,7 @@
             </Tempo>
           <Chord>
             <linkedMain/>
+            <dots>1</dots>
             <durationType>quarter</durationType>
             <Note>
               <linkedMain/>
@@ -127,7 +128,7 @@
                   </GuitarBend>
                 <next>
                   <location>
-                    <fractions>1/4</fractions>
+                    <fractions>3/8</fractions>
                     </location>
                   </next>
                 </Spanner>
@@ -140,7 +141,7 @@
                   </Tie>
                 <next>
                   <location>
-                    <fractions>1/4</fractions>
+                    <fractions>3/8</fractions>
                     </location>
                   </next>
                 </Spanner>
@@ -165,7 +166,7 @@
                   </GuitarBend>
                 <next>
                   <location>
-                    <fractions>1/4</fractions>
+                    <fractions>3/8</fractions>
                     </location>
                   </next>
                 </Spanner>
@@ -173,7 +174,7 @@
             </Chord>
           <Chord>
             <linkedMain/>
-            <durationType>quarter</durationType>
+            <durationType>eighth</durationType>
             <Note>
               <linkedMain/>
               <Accidental>
@@ -187,7 +188,7 @@
               <Spanner type="GuitarBend">
                 <prev>
                   <location>
-                    <fractions>-1/4</fractions>
+                    <fractions>-3/8</fractions>
                     </location>
                   </prev>
                 </Spanner>
@@ -197,14 +198,12 @@
               <Spanner type="Tie">
                 <prev>
                   <location>
-                    <fractions>-1/4</fractions>
+                    <fractions>-3/8</fractions>
                     </location>
                   </prev>
                 </Spanner>
               <pitch>60</pitch>
               <tpc>14</tpc>
-              <fret>1</fret>
-              <string>1</string>
               </Note>
             <Note>
               <linkedMain/>
@@ -215,7 +214,7 @@
               <Spanner type="GuitarBend">
                 <prev>
                   <location>
-                    <fractions>-1/4</fractions>
+                    <fractions>-3/8</fractions>
                     </location>
                   </prev>
                 </Spanner>
@@ -240,6 +239,7 @@
           <Chord>
             <linked>
               </linked>
+            <dots>1</dots>
             <durationType>quarter</durationType>
             <Note>
               <linked>
@@ -259,7 +259,8 @@
                   </GuitarBend>
                 <next>
                   <location>
-                    <fractions>1/4</fractions>
+                    <fractions>3/8</fractions>
+                    <notes>2</notes>
                     </location>
                   </next>
                 </Spanner>
@@ -274,7 +275,7 @@
                   </Tie>
                 <next>
                   <location>
-                    <fractions>1/4</fractions>
+                    <fractions>3/8</fractions>
                     </location>
                   </next>
                 </Spanner>
@@ -301,7 +302,8 @@
                   </GuitarBend>
                 <next>
                   <location>
-                    <fractions>1/4</fractions>
+                    <fractions>3/8</fractions>
+                    <notes>-2</notes>
                     </location>
                   </next>
                 </Spanner>
@@ -310,7 +312,7 @@
           <Chord>
             <linked>
               </linked>
-            <durationType>quarter</durationType>
+            <durationType>eighth</durationType>
             <Note>
               <linked>
                 </linked>
@@ -318,14 +320,24 @@
                 <role>1</role>
                 <subtype>accidentalQuarterToneSharpArrowDown</subtype>
                 </Accidental>
+              <Symbol>
+                <name>noteheadParenthesisLeft</name>
+                <visible>0</visible>
+                </Symbol>
+              <Symbol>
+                <name>noteheadParenthesisRight</name>
+                <visible>0</visible>
+                </Symbol>
               <pitch>57</pitch>
               <tpc>17</tpc>
-              <fret>2</fret>
-              <string>2</string>
+              <fret>5</fret>
+              <string>1</string>
+              <ghost>1</ghost>
               <Spanner type="GuitarBend">
                 <prev>
                   <location>
-                    <fractions>-1/4</fractions>
+                    <fractions>-3/8</fractions>
+                    <notes>2</notes>
                     </location>
                   </prev>
                 </Spanner>
@@ -336,7 +348,7 @@
               <Spanner type="Tie">
                 <prev>
                   <location>
-                    <fractions>-1/4</fractions>
+                    <fractions>-3/8</fractions>
                     </location>
                   </prev>
                 </Spanner>
@@ -350,12 +362,13 @@
                 </linked>
               <pitch>67</pitch>
               <tpc>15</tpc>
-              <fret>5</fret>
-              <string>1</string>
+              <fret>2</fret>
+              <string>2</string>
               <Spanner type="GuitarBend">
                 <prev>
                   <location>
-                    <fractions>-1/4</fractions>
+                    <fractions>-3/8</fractions>
+                    <notes>-2</notes>
                     </location>
                   </prev>
                 </Spanner>

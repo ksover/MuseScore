@@ -115,6 +115,7 @@ enum class Sid {
     lyricsMelismaForce,
     lyricsMelismaMinLength,
     lyricsDashPosAtStartOfSystem,
+    lyricsAvoidBarlines,
 
     lyricsOddFontFace,
     lyricsOddFontSize,
@@ -163,6 +164,7 @@ enum class Sid {
     repeatBarTips,
     startBarlineSingle,
     startBarlineMultiple,
+    maskBarlinesForText,
 
     bracketWidth,
     bracketDistance,
@@ -181,7 +183,6 @@ enum class Sid {
     keysigLeftMargin,
     ambitusMargin,
     timesigLeftMargin,
-    timesigScale,
 
     midClefKeyRightMargin,
     clefKeyRightMargin,
@@ -195,6 +196,29 @@ enum class Sid {
 
     clefBarlineDistance,
     timesigBarlineDistance,
+
+    timeSigPlacement,
+
+    timeSigCenterOnBarline,
+    timeSigVSMarginCentered,
+    timeSigVSMarginNonCentered,
+    timeSigCenterAcrossStaveGroup,
+
+    timeSigNormalStyle,
+    timeSigNormalScale,
+    timeSigNormalScaleLock,
+    timeSigNormalNumDist,
+    timeSigNormalY,
+    timeSigAboveStyle,
+    timeSigAboveScale,
+    timeSigAboveScaleLock,
+    timeSigAboveNumDist,
+    timeSigAboveY,
+    timeSigAcrossStyle,
+    timeSigAcrossScale,
+    timeSigAcrossScaleLock,
+    timeSigAcrossNumDist,
+    timeSigAcrossY,
 
     useStraightNoteFlags,
     stemWidth,
@@ -1763,6 +1787,26 @@ enum class Sid {
 
     autoplaceEnabled,
     defaultsVersion,
+
+    changesBeforeBarlineRepeats,
+    changesBeforeBarlineOtherJumps,
+
+    placeClefsBeforeRepeats,
+    changesBetweenEndStartRepeat,
+
+    showCourtesiesRepeats,
+    useParensRepeatCourtesies,
+
+    showCourtesiesOtherJumps,
+    useParensOtherJumpCourtesies,
+
+    showCourtesiesAfterCancellingRepeats,
+    useParensRepeatCourtesiesAfterCancelling,
+
+    showCourtesiesAfterCancellingOtherJumps,
+    useParensOtherJumpCourtesiesAfterCancelling,
+
+    smallParens,
 
     STYLES
     ///\}

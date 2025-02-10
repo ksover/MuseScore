@@ -10487,9 +10487,9 @@ Cette action ne supprimera pas vos partitions.</translation>
     </message>
     <message>
         <location filename="../../src/appshell/qml/AboutDialog.qml" line="140"/>
-        <source>Copyright © 1999-2024 MuseScore Limited.
+        <source>Copyright © 1999-2025 MuseScore Limited.
 Published under the &lt;a href=&quot;%1&quot;&gt;GNU General Public License version 3&lt;/a&gt;.</source>
-        <translation>Copyright © 1999-2024 MuseScore Limited.
+        <translation>Copyright © 1999-2025 MuseScore Limited.
 Publié sous licence &lt;a href=&quot;%1&quot;&gt;GNU General Public License. version 3&lt;/a&gt;.</translation>
     </message>
     <message>
@@ -25930,7 +25930,7 @@ a échoué.</translation>
     <message>
         <location filename="../../src/palette/view/widgets/specialcharactersdialog.cpp" line="175"/>
         <source>Combining Diacritical Marks for Symbols</source>
-        <translation>Combining Diacritical Marks for Symbols</translation>
+        <translation>Combinaison de signes diacritiques des symboles</translation>
     </message>
     <message>
         <location filename="../../src/palette/view/widgets/specialcharactersdialog.cpp" line="176"/>
@@ -26420,7 +26420,7 @@ a échoué.</translation>
     <message>
         <location filename="../../src/palette/view/widgets/specialcharactersdialog.cpp" line="273"/>
         <source>Old Italic</source>
-        <translation>Vieil Italique</translation>
+        <translation>Italique Ancien</translation>
     </message>
     <message>
         <location filename="../../src/palette/view/widgets/specialcharactersdialog.cpp" line="274"/>
@@ -27030,7 +27030,7 @@ a échoué.</translation>
     <message>
         <location filename="../../src/palette/view/widgets/specialcharactersdialog.cpp" line="395"/>
         <source>Symbols for Legacy Computing</source>
-        <translation>Symboles pour l&apos;informatique ancienne</translation>
+        <translation>Symboles de l&apos;informatique ancienne</translation>
     </message>
     <message>
         <location filename="../../src/palette/view/widgets/specialcharactersdialog.cpp" line="396"/>
@@ -27050,7 +27050,7 @@ a échoué.</translation>
     <message>
         <location filename="../../src/palette/view/widgets/specialcharactersdialog.cpp" line="399"/>
         <source>CJK Compatibility Ideographs Supplement</source>
-        <translation>Supplément de Idéogrammes de Compatibilité CJK</translation>
+        <translation>Supplément des Idéogrammes de Compatibilité CJK</translation>
     </message>
     <message>
         <location filename="../../src/palette/view/widgets/specialcharactersdialog.cpp" line="400"/>

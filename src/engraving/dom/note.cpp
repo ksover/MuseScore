@@ -1924,6 +1924,9 @@ EngravingItem* Note::drop(EditData& data)
             GuitarBendType type = (toActionIcon(e)->actionType() == ActionIconType::PRE_BEND)
                                   ? GuitarBendType::PRE_BEND : GuitarBendType::GRACE_NOTE_BEND;
             GuitarBend* guitarBend = score()->addGuitarBend(type, this);
+            if (!guitarBend) {
+                break;
+            }
             Note* note = guitarBend->startNote();
             IF_ASSERT_FAILED(note) {
                 LOGE() << "not valid start note of the bend";
@@ -2509,13 +2512,13 @@ PartialTie* Note::outgoingPartialTie() const
 void Note::setTieFor(Tie* t)
 {
     m_tieFor = t;
-    m_jumpPoints.setStartTie(m_tieFor);
 }
 
 void Note::setTieBack(Tie* t)
 {
     if (m_tieBack && t && m_tieBack->jumpPoint()) {
         t->setJumpPoint(m_tieBack->jumpPoint());
+        m_tieBack->setJumpPoint(nullptr);
     }
     m_tieBack = t;
 }

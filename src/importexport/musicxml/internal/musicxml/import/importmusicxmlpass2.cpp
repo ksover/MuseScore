@@ -5949,16 +5949,24 @@ void MusicXmlParserPass2::clef(const String& partId, Measure* measure, const Fra
     }
 
     Segment* s;
+    ClefToBarlinePosition position = ClefToBarlinePosition::AUTO;
     // check if the clef change needs to be in the previous measure
     if (!afterBarline && (tick == measure->tick()) && measure->prevMeasure()) {
         s = measure->prevMeasure()->getSegment(SegmentType::Clef, tick);
+        if (measure->prevMeasure()->repeatEnd()) {
+            position = ClefToBarlinePosition::BEFORE;
+        }
     } else {
         s = measure->getSegment(tick.isNotZero() ? SegmentType::Clef : SegmentType::HeaderClef, tick);
+        if (measure->prevMeasure() && !measure->prevMeasure()->repeatEnd()) {
+            position = ClefToBarlinePosition::AFTER;
+        }
     }
 
     Clef* clefs = Factory::createClef(s);
     clefs->setClefType(clef);
     clefs->setVisible(printObject);
+    clefs->setClefToBarlinePosition(position);
     if (clefColor.isValid()) {
         clefs->setColor(clefColor);
     }
@@ -8157,9 +8165,9 @@ void MusicXmlParserNotations::articulations()
             const String smufl = m_e.attribute("smufl");
 
             if (!smufl.empty()) {
-                SymId id = SymNames::symIdByName(smufl, SymId::noSym);
+                SymId sid = SymNames::symIdByName(smufl, SymId::noSym);
                 Notation artic = Notation::notationWithAttributes(String::fromAscii(m_e.name().ascii()),
-                                                                  m_e.attributes(), u"articulations", id);
+                                                                  m_e.attributes(), u"articulations", sid);
                 m_notations.push_back(artic);
             }
             m_e.skipCurrentElement();  // skip but don't log

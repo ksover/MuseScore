@@ -9592,22 +9592,22 @@ x-korkeudesta):</translation>
     <message>
         <location filename="../../src/notation/internal/notationuiactions.cpp" line="1263"/>
         <source>Syst&amp;em text</source>
-        <translation>Viiva&amp;storyhmän teksti</translation>
+        <translation>&amp;Viivastoryhmän teksti</translation>
     </message>
     <message>
         <location filename="../../src/notation/internal/notationuiactions.cpp" line="1269"/>
         <source>St&amp;aff text</source>
-        <translation>&amp;Viivaston teksti</translation>
+        <translation>Viivaston &amp;teksti</translation>
     </message>
     <message>
         <location filename="../../src/notation/internal/notationuiactions.cpp" line="1275"/>
         <source>E&amp;xpression text</source>
-        <translation>&amp;Määritelmäteksti</translation>
+        <translation>Ilmaisut&amp;eksti</translation>
     </message>
     <message>
         <location filename="../../src/notation/internal/notationuiactions.cpp" line="1281"/>
         <source>&amp;Rehearsal mark</source>
-        <translation>&amp;Harjoitusmerkki</translation>
+        <translation>Harjoitus&amp;merkki</translation>
     </message>
     <message>
         <location filename="../../src/notation/internal/notationuiactions.cpp" line="1287"/>
@@ -9622,12 +9622,12 @@ x-korkeudesta):</translation>
     <message>
         <location filename="../../src/notation/internal/notationuiactions.cpp" line="1299"/>
         <source>Stic&amp;king</source>
-        <translation>&amp;Kiinnittyvä</translation>
+        <translation>Kii&amp;nnittyvä</translation>
     </message>
     <message>
         <location filename="../../src/notation/internal/notationuiactions.cpp" line="1305"/>
         <source>Chor&amp;d symbol</source>
-        <translation>Soint&amp;umerkki</translation>
+        <translation>Sointumer&amp;kki</translation>
     </message>
     <message>
         <location filename="../../src/notation/internal/notationuiactions.cpp" line="1311"/>
@@ -10488,9 +10488,9 @@ saat uusia versioita ja lisätietoja.</translation>
     </message>
     <message>
         <location filename="../../src/appshell/qml/AboutDialog.qml" line="140"/>
-        <source>Copyright © 1999-2024 MuseScore Limited.
+        <source>Copyright © 1999-2025 MuseScore Limited.
 Published under the &lt;a href=&quot;%1&quot;&gt;GNU General Public License version 3&lt;/a&gt;.</source>
-        <translation>Copyright © 1999-2024 MuseScore Limited.
+        <translation>Copyright © 1999-2025 MuseScore Limited.
 Published under the &lt;a href=&quot;%1&quot;&gt;GNU General Public License version 3&lt;/a&gt;.</translation>
     </message>
     <message>

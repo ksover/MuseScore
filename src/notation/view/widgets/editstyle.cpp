@@ -257,10 +257,6 @@ EditStyle::EditStyle(QWidget* parent)
     tsbl->addButton(radioTimeSigCourtesyBarlineAlwaysDouble, int(CourtesyBarlineMode::ALWAYS_DOUBLE));
     tsbl->addButton(radioTimeSigCourtesyBarlineDoubleBeforeNewSystem, int(CourtesyBarlineMode::DOUBLE_BEFORE_COURTESY));
 
-    QButtonGroup* ctg = new QButtonGroup(this);
-    ctg->addButton(clefTab1, int(ClefType::TAB));
-    ctg->addButton(clefTab2, int(ClefType::TAB_SERIF));
-
     QButtonGroup* fbAlign = new QButtonGroup(this);
     fbAlign->addButton(radioFBTop, 0);
     fbAlign->addButton(radioFBBottom, 1);
@@ -297,14 +293,6 @@ EditStyle::EditStyle(QWidget* parent)
         updateParenthesisIndicatingTiesGroupState();
     });
 
-    QButtonGroup* clefVisibility = new QButtonGroup(this);
-    clefVisibility->addButton(radioShowAllClefs, true);
-    clefVisibility->addButton(radioHideClefs, false);
-
-    QButtonGroup* keysigVisibility = new QButtonGroup(this);
-    keysigVisibility->addButton(radioShowAllKeys, true);
-    keysigVisibility->addButton(radioHideKeys, false);
-
     QButtonGroup* firstSysLabels = new QButtonGroup(this);
     firstSysLabels->addButton(firstLongBtn, int(InstrumentLabelVisibility::LONG));
     firstSysLabels->addButton(firstShortBtn, int(InstrumentLabelVisibility::SHORT));
@@ -334,7 +322,6 @@ EditStyle::EditStyle(QWidget* parent)
         { StyleId::figuredBassFontSize,     false, doubleSpinFBSize,        0 },
         { StyleId::figuredBassYOffset,      false, doubleSpinFBVertPos,     0 },
         { StyleId::figuredBassLineHeight,   true,  spinFBLineHeight,        0 },
-        { StyleId::tabClef,                 false, ctg,                     0 },
         { StyleId::keySigNaturals,          false, ksng,                    0 },
         { StyleId::voltaLineStyle,          false, voltaLineStyle,          resetVoltaLineStyle },
         { StyleId::voltaDashLineLen,        false, voltaLineStyleDashSize,  resetVoltaLineStyleDashSize },
@@ -385,6 +372,7 @@ EditStyle::EditStyle(QWidget* parent)
         { StyleId::lyricsMelismaMinLength,  false, minMelismaLength,     resetMinMelismaLength },
         { StyleId::lyricsMelismaForce,      false, lyricsMelismaForce,   resetLyricsMelismaForce },
         { StyleId::lyricsDashPosAtStartOfSystem, false, lyricsDashStartSystemPlacement, resetLyricsDashStartSystemPlacement },
+        { StyleId::lyricsAvoidBarlines, false, lyricsAvoidBarlines, resetLyricsAvoidBarlines },
 
         { StyleId::systemFrameDistance,     false, systemFrameDistance,     resetSystemFrameDistance },
         { StyleId::frameSystemDistance,     false, frameSystemDistance,     resetFrameSystemDistance },
@@ -567,6 +555,7 @@ EditStyle::EditStyle(QWidget* parent)
         { StyleId::repeatBarTips,            false, showRepeatBarTips,            resetShowRepeatBarTips },
         { StyleId::startBarlineSingle,       false, showStartBarlineSingle,       resetShowStartBarlineSingle },
         { StyleId::startBarlineMultiple,     false, showStartBarlineMultiple,     resetShowStartBarlineMultiple },
+        { StyleId::maskBarlinesForText,      false, maskBarlines,                 resetMaskBarlines },
         { StyleId::dividerLeftSym,           false, dividerLeftSym,               0 },
         { StyleId::dividerRightSym,          false, dividerRightSym,              0 },
 
@@ -593,12 +582,6 @@ EditStyle::EditStyle(QWidget* parent)
         { StyleId::scaleRythmicSpacingForSmallNotes, true, reduceRythmicSpacing, 0 },
         { StyleId::smallClefMag,             true,  smallClefSize,                resetSmallClefSize },
         { StyleId::lastSystemFillLimit,      true,  lastSystemFillThreshold,      resetLastSystemFillThreshold },
-        { StyleId::hideTabClefAfterFirst,    false, hideTabClefs,                 0 },
-        { StyleId::genClef,                  false, clefVisibility,               0 },
-        { StyleId::genKeysig,                false, keysigVisibility,             0 },
-        { StyleId::genCourtesyTimesig,       false, genCourtesyTimesig,           0 },
-        { StyleId::genCourtesyKeysig,        false, genCourtesyKeysig,            0 },
-        { StyleId::genCourtesyClef,          false, genCourtesyClef,              0 },
         { StyleId::keySigCourtesyBarlineMode, false, ksbl,                        0 },
         { StyleId::timeSigCourtesyBarlineMode, false, tsbl,                       0 },
         { StyleId::swingRatio,               false, swingBox,                     0 },
@@ -941,6 +924,16 @@ EditStyle::EditStyle(QWidget* parent)
     groupBox_noteline->layout()->addWidget(noteLineSection.widget);
 
     // ====================================================
+    // CLEF, KEY & TIME SIG PAGE (QML)
+    // ====================================================
+
+    auto clefKeyTimeSigPage = createQmlWidget(
+        clefTimeKeySigPage,
+        QUrl(QString::fromUtf8("qrc:/qml/MuseScore/NotationScene/internal/EditStyle/ClefKeyTimeSigPage.qml")));
+    clefKeyTimeSigPage.widget->setMinimumSize(224, 400);
+    clefTimeKeySigPage->layout()->addWidget(clefKeyTimeSigPage.widget);
+
+    // ====================================================
     // Figured Bass
     // ====================================================
 
@@ -1005,9 +998,6 @@ EditStyle::EditStyle(QWidget* parent)
     connect(lyricsDashMaxLength, &QDoubleSpinBox::valueChanged, this, &EditStyle::lyricsDashMaxLengthValueChanged);
     connect(minSystemDistance,   &QDoubleSpinBox::valueChanged, this, &EditStyle::systemMinDistanceValueChanged);
     connect(maxSystemDistance,   &QDoubleSpinBox::valueChanged, this, &EditStyle::systemMaxDistanceValueChanged);
-
-    connect(radioShowAllClefs, &QRadioButton::toggled, this, &EditStyle::clefVisibilityChanged);
-    connect(radioHideClefs,    &QRadioButton::toggled, this, &EditStyle::clefVisibilityChanged);
 
     accidentalsGroup->setVisible(false);   // disable, not yet implemented
 
@@ -1639,7 +1629,9 @@ QString EditStyle::pageCodeForElement(const EngravingItem* element)
 
     case ElementType::LYRICS:
     case ElementType::LYRICSLINE:
+    case ElementType::PARTIAL_LYRICSLINE:
     case ElementType::LYRICSLINE_SEGMENT:
+    case ElementType::PARTIAL_LYRICSLINE_SEGMENT:
         return "lyrics";
 
     case ElementType::EXPRESSION:
@@ -2124,6 +2116,9 @@ PropertyValue EditStyle::getValue(StyleId idx)
     case P_TYPE::PLACEMENT_H:
     case P_TYPE::PLACEMENT_V:
     case P_TYPE::LINE_TYPE:
+    case P_TYPE::TIMESIG_PLACEMENT:
+    case P_TYPE::TIMESIG_STYLE:
+    case P_TYPE::TIMESIG_MARGIN:
     case P_TYPE::INT: {
         if (qobject_cast<QComboBox*>(sw.widget)) {
             QComboBox* cb = qobject_cast<QComboBox*>(sw.widget);
@@ -2249,6 +2244,9 @@ void EditStyle::setValues()
         case P_TYPE::DYNAMIC_TYPE:
         case P_TYPE::ACCIDENTAL_ROLE:
         case P_TYPE::TIE_PLACEMENT:
+        case P_TYPE::TIMESIG_PLACEMENT:
+        case P_TYPE::TIMESIG_STYLE:
+        case P_TYPE::TIMESIG_MARGIN:
         case P_TYPE::INT: {
             int value = val.toInt();
             if (qobject_cast<QComboBox*>(sw.widget)) {
@@ -2949,17 +2947,4 @@ void EditStyle::resetUserStyleName()
 void EditStyle::updateParenthesisIndicatingTiesGroupState()
 {
     tieParen->setEnabled(tabShowTies->isChecked() || tabShowNone->isChecked());
-}
-
-void EditStyle::clefVisibilityChanged(bool checked)
-{
-    if (!checked) {
-        return;
-    }
-    if (radioHideClefs->isChecked()) {
-        hideTabClefs->setChecked(true);
-        hideTabClefs->setEnabled(false);
-    } else {
-        hideTabClefs->setEnabled(true);
-    }
 }

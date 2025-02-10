@@ -246,5 +246,20 @@ public:
 
     static AsciiStringView toXml(PartialSpannerDirection v);
     static PartialSpannerDirection fromXml(const AsciiStringView& str, PartialSpannerDirection def);
+
+    static AsciiStringView toXml(ScoreStylePreset preset);
+    static ScoreStylePreset fromXml(const AsciiStringView& tag, ScoreStylePreset def);
+
+    static const TranslatableString& userName(ScoreStylePreset v);
+    static String translatedUserName(ScoreStylePreset v);
+
+    static AsciiStringView toXml(TimeSigPlacement timeSigPos);
+    static TimeSigPlacement fromXml(const AsciiStringView& str, TimeSigPlacement def);
+
+    static AsciiStringView toXml(TimeSigStyle timeSigStyle);
+    static TimeSigStyle fromXml(const AsciiStringView& str, TimeSigStyle def);
+
+    static AsciiStringView toXml(TimeSigVSMargin timeSigVSMargin);
+    static TimeSigVSMargin fromXml(const AsciiStringView& str, TimeSigVSMargin def);
 };
 }

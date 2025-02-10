@@ -105,6 +105,7 @@
 
 #include "dom/page.h"
 #include "dom/palmmute.h"
+#include "dom/parenthesis.h"
 #include "dom/part.h"
 #include "dom/pedal.h"
 #include "dom/pickscrape.h"
@@ -318,6 +319,8 @@ void TLayout::layoutItem(EngravingItem* item, LayoutContext& ctx)
         break;
     case ElementType::LYRICSLINE_SEGMENT: layoutLyricsLineSegment(item_cast<LyricsLineSegment*>(item), ctx);
         break;
+    case ElementType::PARTIAL_LYRICSLINE_SEGMENT: layoutLyricsLineSegment(item_cast<LyricsLineSegment*>(item), ctx);
+        break;
     case ElementType::MARKER:
         layoutMarker(item_cast<const Marker*>(item), static_cast<Marker::LayoutData*>(ldata));
         break;
@@ -358,6 +361,8 @@ void TLayout::layoutItem(EngravingItem* item, LayoutContext& ctx)
     case ElementType::PALM_MUTE:        layoutPalmMute(item_cast<PalmMute*>(item), ctx);
         break;
     case ElementType::PALM_MUTE_SEGMENT: layoutPalmMuteSegment(item_cast<PalmMuteSegment*>(item), ctx);
+        break;
+    case ElementType::PARENTHESIS:      layoutParenthesis(item_cast<Parenthesis*>(item), ctx);
         break;
     case ElementType::PEDAL:            layoutPedal(item_cast<Pedal*>(item), ctx);
         break;
@@ -1769,7 +1774,10 @@ void TLayout::layoutClef(const Clef* item, Clef::LayoutData* ldata, const Layout
         lines      = st->lines();             // init values from staff type
         lineDist   = st->lineDistance().val();
         stepOffset = st->stepOffset();
-        staffOffsetY = item->isHeader() ? 0.0 : st->yoffset().val() - (stPrev ? stPrev->yoffset().val() : 0);
+
+        const double stOffset = st->yoffset().val();
+        const double stPrevOffset = stPrev && clefSeg->rtick() != Fraction(0, 1) ? stPrev->yoffset().val() : 0.0;
+        staffOffsetY = item->isHeader() ? 0.0 : stOffset - stPrevOffset;
     }
 
     double _spatium = item->spatium();
@@ -3136,7 +3144,8 @@ void TLayout::manageHairpinSnapping(HairpinSegment* item, LayoutContext& ctx)
 
     bool doSnapBefore = possibleSnapBeforeElement && item->hairpin()->snapToItemBefore();
     if (doSnapBefore && possibleSnapBeforeElement->isHairpinSegment()) {
-        doSnapBefore = doSnapBefore && toHairpinSegment(possibleSnapBeforeElement)->hairpin()->snapToItemAfter();
+        doSnapBefore = doSnapBefore && toHairpinSegment(possibleSnapBeforeElement)->hairpin()->snapToItemAfter()
+                       && possibleSnapBeforeElement->ldata()->itemSnappedBefore() != item;
     }
 
     if (doSnapBefore) {
@@ -3145,7 +3154,8 @@ void TLayout::manageHairpinSnapping(HairpinSegment* item, LayoutContext& ctx)
 
     bool doSnapAfter = possibleSnapAfterElement && item->hairpin()->snapToItemAfter();
     if (doSnapAfter && possibleSnapAfterElement->isHairpinSegment()) {
-        doSnapAfter = doSnapAfter && toHairpinSegment(possibleSnapAfterElement)->hairpin()->snapToItemBefore();
+        doSnapAfter = doSnapAfter && toHairpinSegment(possibleSnapAfterElement)->hairpin()->snapToItemBefore()
+                      && possibleSnapAfterElement->ldata()->itemSnappedAfter() != item;
     }
 
     if (doSnapAfter) {
@@ -3532,7 +3542,10 @@ void TLayout::layoutKeySig(const KeySig* item, KeySig::LayoutData* ldata, const 
         Clef* c = nullptr;
         if (item->segment()) {
             for (Segment* seg = item->segment()->prev1(); !c && seg && seg->tick() == item->tick(); seg = seg->prev1()) {
-                if (seg->enabled() && (seg->isClefType() || seg->isHeaderClefType())) {
+                const bool isClefSeg
+                    = (seg->isClefType() || seg->isHeaderClefType()
+                       || (seg->isClefRepeatAnnounceType() && item->segment()->isKeySigRepeatAnnounceType()));
+                if (seg->enabled() && isClefSeg) {
                     c = toClef(seg->element(item->track()));
                 }
             }
@@ -3778,9 +3791,6 @@ void TLayout::layoutLayoutBreak(const LayoutBreak* item, LayoutBreak::LayoutData
     FontMetrics metrics(item->font());
     RectF bbox = metrics.boundingRect(item->iconCode());
     ldata->setShape(Shape(bbox, item));
-
-    // Ensure it goes behind notation
-    const_cast<LayoutBreak*>(item)->setZ(-10);
 }
 
 void TLayout::layoutSystemLockIndicator(const SystemLockIndicator* item, SystemLockIndicator::LayoutData* ldata)
@@ -4152,6 +4162,11 @@ void TLayout::layoutMMRest(const MMRest* item, MMRest::LayoutData* ldata, const 
     ldata->setNumberSym(ldata->number);
     ldata->yNumberPos = ctx.conf().styleMM(Sid::mmRestNumberPos);
 
+    const Staff* staff = item->staff();
+    if (staff->lines(item->tick()) == 1) {
+        ldata->yNumberPos = std::min(ldata->yNumberPos, -item->spatium());
+    }
+
     if (item->isOldStyle()) {
         SymIdList restSyms;
         double symsWidth = 0.0;
@@ -4186,7 +4201,11 @@ void TLayout::layoutMMRest(const MMRest* item, MMRest::LayoutData* ldata, const 
 
     // Only need to set y position here; x position is handled in MeasureLayout::layoutMeasureElements()
     const StaffType* staffType = item->staffType();
-    ldata->setPos(0, (staffType->middleLine() / 2.0) * staffType->lineDistance().val() * item->spatium());
+    double midline = staffType->middleLine() / 2.0;
+    if (item->isOldStyle()) {
+        midline = std::max(1.0, midline);
+    }
+    ldata->setPos(0, midline * staffType->lineDistance().val() * item->spatium());
 
     ChordLayout::fillShape(item, ldata, ctx.conf());
 }
@@ -4487,6 +4506,92 @@ void TLayout::layoutPalmMuteSegment(PalmMuteSegment* item, LayoutContext& ctx)
     ldata->setShape(sh);
 
     Autoplace::autoplaceSpannerSegment(item, ldata, ctx.conf().spatium());
+}
+
+void TLayout::layoutParenthesis(Parenthesis* item, LayoutContext& ctx)
+{
+    Parenthesis::LayoutData* ldata = item->mutldata();
+    ldata->setPos(PointF());
+    ldata->clearShape();
+    ldata->path.reset();
+
+    const Staff* staff = item->staff();
+    const Segment* seg = item->segment();
+    const bool isClefSeg = seg->isType(SegmentType::ClefType);
+    const Fraction tick = item->tick();
+    const Fraction tickPrev = tick - Fraction::eps();
+    const double spatium = item->spatium();
+    const double mag = item->mag();
+    const bool leftBracket = item->direction() == DirectionH::LEFT;
+
+    const StaffType* st = staff->staffType(tick);
+    const StaffType* stPrev = !tickPrev.negative() ? item->staff()->staffType(tickPrev) : nullptr;
+
+    double startY = -spatium;
+    double height = staff->staffHeight(item->tick()) + 2 * spatium * mag;       // 6sp for a standard 5 line stave
+
+    if (ctx.conf().styleB(Sid::smallParens)) {
+        startY = ldata->startY;
+        height = ldata->height;
+    }
+
+    if (isClefSeg && seg->rtick() == seg->measure()->ticks()) {
+        double offset = st->yoffset().val() - (stPrev ? stPrev->yoffset().val() : 0);
+        startY += offset * spatium;
+    }
+
+    const double heightInSpatium = height / spatium;
+    const double shoulderYOffset = 0.2 * height;
+    const double thickness = height / 60 * mag; // 0.1sp for a height of 6sp
+    ldata->thickness.set_value(thickness);
+    const double shoulderX = 0.2 * height * mag;
+
+    PointF start = PointF(0.0, startY);
+    const PointF end = PointF(0.0, start.y() + height);
+    const PointF endNormalised = end - start;
+
+    const int direction = leftBracket ? -1 : 1;
+    const double shoulderForX = direction * shoulderX + thickness * direction;
+    const double shoulderBackX = direction * shoulderX + thickness * direction * -1;
+
+    const PointF bezier1for = PointF(shoulderForX, shoulderYOffset);
+    const PointF bezier2for = PointF(shoulderForX, endNormalised.y() - shoulderYOffset);
+    const PointF bezier1back = PointF(shoulderBackX, endNormalised.y() - shoulderYOffset);
+    const PointF bezier2back = PointF(shoulderBackX, shoulderYOffset);
+
+    PainterPath path = PainterPath();
+    path.moveTo(PointF());
+    path.cubicTo(bezier1for, bezier2for, endNormalised);
+    path.cubicTo(bezier1back, bezier2back, PointF());
+
+    ldata->path = path;
+
+    // Fill shape
+    Shape shape(Shape::Type::Composite);
+
+    PointF startPoint = PointF();
+    double midThickness = 2 * thickness;
+    int nbShapes = round(5.0 * heightInSpatium);
+    nbShapes = std::clamp(nbShapes, 20, 50);
+    PointF bezier1mid = bezier1for - PointF(thickness * direction, 0.0);
+    PointF bezier2mid = bezier2for - PointF(thickness * direction, 0.0);
+    const CubicBezier b(startPoint, bezier1mid, bezier2mid, endNormalised);
+    for (int i = 1; i <= nbShapes; i++) {
+        double percent = pow(sin(0.5 * M_PI * (double(i) / double(nbShapes))), 2);
+        const PointF point = b.pointAtPercent(percent);
+        RectF re = RectF(startPoint, point).normalized();
+        double approxThicknessAtPercent = (1 - 2 * std::abs(0.5 - percent)) * midThickness;
+        if (re.width() < approxThicknessAtPercent) {
+            double adjust = (approxThicknessAtPercent - re.width()) * .5;
+            re.adjust(-adjust, 0.0, adjust, 0.0);
+        }
+        shape.add(re, item);
+        startPoint = point;
+    }
+
+    item->mutldata()->setShape(shape);
+
+    item->setPos(start);
 }
 
 void TLayout::layoutPedal(Pedal* item, LayoutContext& ctx)
@@ -5760,15 +5865,15 @@ void TLayout::layoutTempoText(const TempoText* item, TempoText::LayoutData* ldat
         LD_CONDITION(s->ldata()->isSetPos());
     }
 
-    // tempo text on first chordrest of measure should align over time sig if present
+    // tempo text on first chordrest of measure should align over time sig if present, unless time sig is above staff
     Segment* s = item->segment();
     if (item->autoplace() && s->rtick().isZero()) {
         Segment* p = item->segment()->prev(SegmentType::TimeSig);
-        if (p) {
+        if (p && !p->allElementsInvisible()) {
             ldata->moveX(-(s->x() - p->x()));
             EngravingItem* e = p->element(item->staffIdx() * VOICES);
             if (e) {
-                ldata->moveX(e->x());
+                ldata->moveX(p->hasTimeSigAboveStaves() ? e->x() + e->width() + e->spatium() : e->x());
             }
         }
     }
@@ -5875,6 +5980,37 @@ void TLayout::layoutBaseTextBase1(const TextBase* item, TextBase::LayoutData* ld
     if (item->hasFrame()) {
         item->layoutFrame(ldata);
     }
+
+    if (!item->isDynamic() && !(item->explicitParent() && item->parent()->isBox())) {
+        computeTextHighResShape(item, ldata);
+    }
+}
+
+void TLayout::computeTextHighResShape(const TextBase* item, TextBase::LayoutData* ldata)
+{
+    Shape& shape = ldata->highResShape.mut_value();
+    shape.clear();
+    shape.elements().reserve(item->xmlText().size());
+
+    for (const TextBlock& block : ldata->blocks) {
+        double y = block.y();
+        for (const TextFragment& fragment : block.fragments()) {
+            FontMetrics fontMetrics = FontMetrics(fragment.font(item));
+            double x = fragment.pos.x();
+            size_t textSize = fragment.text.size();
+            for (size_t i = 0; i < textSize; ++i) {
+                Char character = fragment.text.at(i);
+                RectF characterBoundingRect = fontMetrics.tightBoundingRect(fragment.text.at(i));
+                characterBoundingRect.translate(x, y);
+                shape.add(characterBoundingRect);
+                if (i + 1 < textSize) {
+                    x += fontMetrics.horizontalAdvance(character);
+                }
+            }
+        }
+    }
+
+    ldata->highResShape = shape;
 }
 
 void TLayout::layoutBaseTextBase1(TextBase* item, const LayoutContext&)
@@ -6238,10 +6374,6 @@ void TLayout::layoutTimeSig(const TimeSig* item, TimeSig::LayoutData* ldata, con
     LAYOUT_CALL_ITEM(item);
     LD_INDEPENDENT;
 
-    if (ldata->isValid()) {
-        return;
-    }
-
     ldata->setPos(0.0, 0.0);
     double spatium = item->spatium();
 
@@ -6251,6 +6383,14 @@ void TLayout::layoutTimeSig(const TimeSig* item, TimeSig::LayoutData* ldata, con
     ldata->pz = PointF();
     ldata->pn = PointF();
     ldata->pointLargeRightParen = PointF();
+
+    const MStyle& style = item->style();
+    TimeSigPlacement timeSigPlacement = style.styleV(Sid::timeSigPlacement).value<TimeSigPlacement>();
+    if (timeSigPlacement == TimeSigPlacement::NORMAL) {
+        const_cast<TimeSig*>(item)->setSystemFlag(false);
+    } else {
+        const_cast<TimeSig*>(item)->setSystemFlag(true);
+    }
 
     double lineDist = 0.0;
     int numOfLines = 0;
@@ -6290,62 +6430,74 @@ void TLayout::layoutTimeSig(const TimeSig* item, TimeSig::LayoutData* ldata, con
 
     // C and Ccut are placed at the middle of the staff: use yoff directly
     IEngravingFontPtr font = ctx.engravingFont();
-    SizeF mag(item->magS() * item->scale());
+    ScaleF scale = item->scale();
+    SizeF mag(item->magS() * scale);
+    TimeSigStyle timeSigStyle = item->timeSigStyle();
 
+    double numDist = item->numDist() * scale.height();
+
+    Shape shape;
     if (sigType == TimeSigType::FOUR_FOUR) {
         ldata->pz = PointF(0.0, yoff);
-        RectF bbox = font->bbox(SymId::timeSigCommon, mag);
-        ldata->setBbox(bbox.translated(ldata->pz));
+        SymId sym = timeSigStyle == TimeSigStyle::LARGE ? SymId::timeSigCommonLarge
+                    : timeSigStyle == TimeSigStyle::NARROW ? SymId::timeSigCommonNarrow
+                    : SymId::timeSigCommon;
+        RectF bbox = font->bbox(sym, mag);
+        shape.add(bbox.translated(ldata->pz), item);
         ldata->ns.clear();
-        ldata->ns.push_back(SymId::timeSigCommon);
+        ldata->ns.push_back(sym);
         ldata->ds.clear();
     } else if (sigType == TimeSigType::ALLA_BREVE) {
         ldata->pz = PointF(0.0, yoff);
-        RectF bbox = font->bbox(SymId::timeSigCutCommon, mag);
-        ldata->setBbox(bbox.translated(ldata->pz));
+        SymId sym = timeSigStyle == TimeSigStyle::LARGE ? SymId::timeSigCutCommonLarge
+                    : timeSigStyle == TimeSigStyle::NARROW ? SymId::timeSigCutCommonNarrow
+                    : SymId::timeSigCutCommon;
+        RectF bbox = font->bbox(sym, mag);
+        shape.add(bbox.translated(ldata->pz), item);
         ldata->ns.clear();
-        ldata->ns.push_back(SymId::timeSigCutCommon);
+        ldata->ns.push_back(sym);
         ldata->ds.clear();
     } else if (sigType == TimeSigType::CUT_BACH) {
         ldata->pz = PointF(0.0, yoff);
-        RectF bbox = font->bbox(SymId::timeSigCut2, mag);
-        ldata->setBbox(bbox.translated(ldata->pz));
+        SymId sym = timeSigStyle == TimeSigStyle::LARGE ? SymId::timeSigCut2Large
+                    : timeSigStyle == TimeSigStyle::NARROW ? SymId::timeSigCut2Narrow
+                    : SymId::timeSigCut2;
+        RectF bbox = font->bbox(sym, mag);
+        shape.add(bbox.translated(ldata->pz), item);
         ldata->ns.clear();
-        ldata->ns.push_back(SymId::timeSigCut2);
+        ldata->ns.push_back(sym);
         ldata->ds.clear();
     } else if (sigType == TimeSigType::CUT_TRIPLE) {
         ldata->pz = PointF(0.0, yoff);
-        RectF bbox = font->bbox(SymId::timeSigCut3, mag);
-        ldata->setBbox(bbox.translated(ldata->pz));
+        SymId sym = timeSigStyle == TimeSigStyle::LARGE ? SymId::timeSigCut3Large
+                    : timeSigStyle == TimeSigStyle::NARROW ? SymId::timeSigCut3Narrow
+                    : SymId::timeSigCut3;
+        RectF bbox = font->bbox(sym, mag);
+        shape.add(bbox.translated(ldata->pz), item);
         ldata->ns.clear();
-        ldata->ns.push_back(SymId::timeSigCut3);
+        ldata->ns.push_back(sym);
         ldata->ds.clear();
     } else {
         if (item->numeratorString().isEmpty()) {
             ldata->ns = timeSigSymIdsFromString(item->numeratorString().isEmpty()
                                                 ? String::number(item->sig().numerator())
-                                                : item->numeratorString());
+                                                : item->numeratorString(),
+                                                timeSigStyle);
 
             ldata->ds = timeSigSymIdsFromString(item->denominatorString().isEmpty()
                                                 ? String::number(item->sig().denominator())
-                                                : item->denominatorString());
+                                                : item->denominatorString(),
+                                                timeSigStyle);
         } else {
-            ldata->ns = timeSigSymIdsFromString(item->numeratorString());
-            ldata->ds = timeSigSymIdsFromString(item->denominatorString());
+            ldata->ns = timeSigSymIdsFromString(item->numeratorString(), timeSigStyle);
+            ldata->ds = timeSigSymIdsFromString(item->denominatorString(), timeSigStyle);
         }
 
         RectF numRect = font->bbox(ldata->ns, mag);
         RectF denRect = font->bbox(ldata->ds, mag);
 
-        // position numerator and denominator; vertical displacement:
-        // number of lines is odd: 0.0 (strings are directly above and below the middle line)
-        // number of lines even:   0.05 (strings are moved up/down to leave 1/10sp between them)
-
-        double displ = (numOfLines & 1) ? 0.0 : (0.05 * spatium);
-
-        //align on the wider
-        double pzY = yoff - (denRect.width() < 0.01 ? 0.0 : (displ + numRect.height() * .5));
-        double pnY = yoff + displ + denRect.height() * .5;
+        double pzY = yoff - (denRect.width() < 0.01 ? 0.0 : 0.5 * (numRect.height() + numDist));
+        double pnY = yoff + 0.5 * (denRect.height() + numDist);
 
         if (numRect.width() >= denRect.width()) {
             // numerator: one space above centre line, unless denomin. is empty (if so, directly centre in the middle)
@@ -6365,15 +6517,28 @@ void TLayout::layoutTimeSig(const TimeSig* item, TimeSig::LayoutData* ldata, con
         ldata->pointLargeLeftParen = PointF(-spatium, centerY);
         ldata->pointLargeRightParen = PointF(widestPortion + spatium, centerY);
 
-        ldata->setBbox(numRect.translated(ldata->pz));       // translate bounding boxes to actual string positions
-        ldata->addBbox(denRect.translated(ldata->pn));
+        shape.add(numRect.translated(ldata->pz), item);       // translate bounding boxes to actual string positions
+        shape.add(denRect.translated(ldata->pn), item);
         if (item->largeParentheses()) {
-            ldata->addBbox(RectF(ldata->pointLargeLeftParen.x(), ldata->pointLargeLeftParen.y() - denRect.height(), spatium / 2,
-                                 numRect.height() + denRect.height()));
-            ldata->addBbox(RectF(ldata->pointLargeRightParen.x(), ldata->pointLargeRightParen.y() - denRect.height(),  spatium / 2,
-                                 numRect.height() + denRect.height()));
+            shape.add(RectF(ldata->pointLargeLeftParen.x(), ldata->pointLargeLeftParen.y() - denRect.height(), spatium / 2,
+                            numRect.height() + denRect.height()), item);
+            shape.add(RectF(ldata->pointLargeRightParen.x(), ldata->pointLargeRightParen.y() - denRect.height(),  spatium / 2,
+                            numRect.height() + denRect.height()), item);
         }
     }
+
+    ldata->setShape(shape);
+
+    ldata->setPosX(-shape.bbox().left());
+
+    if (item->isAboveStaves()) {
+        ldata->setPosY(-2 * spatium * (1 + scale.height()) - 0.5 * numDist);
+    } else if (item->isAcrossStaves()) {
+        double top = ldata->bbox().top();
+        ldata->setPosY(-top);
+    }
+
+    ldata->moveY(item->yPos());
 }
 
 void TLayout::layoutTimeTickAnchor(TimeTickAnchor* item, LayoutContext&)
@@ -6821,7 +6986,7 @@ SpannerSegment* TLayout::layoutSystemSLine(SLine* line, System* system, LayoutCo
 SpannerSegment* TLayout::layoutSystem(LyricsLine* line, System* system, LayoutContext& ctx)
 {
     LAYOUT_CALL_ITEM(line);
-    if (!line->lyrics()) {
+    if (!line->isPartialLyricsLine() && !line->lyrics()) {
         return nullptr;
     }
 
@@ -6849,7 +7014,7 @@ SpannerSegment* TLayout::layoutSystem(LyricsLine* line, System* system, LayoutCo
     lineSegm->setSpannerSegmentType(sst);
 
     TLayout::layoutLyricsLineSegment(lineSegm, ctx);
-    if (!line->lyrics()) {
+    if (!line->isPartialLyricsLine() && !line->lyrics()) {
         // this line could have been removed in the process of laying out surrounding lyrics
         return nullptr;
     }

@@ -75,6 +75,7 @@
 #include "ottava.h"
 #include "page.h"
 #include "palmmute.h"
+#include "parenthesis.h"
 #include "partialtie.h"
 #include "pedal.h"
 #include "pickscrape.h"
@@ -238,6 +239,8 @@ EngravingItem* Factory::doCreateItem(ElementType type, EngravingItem* parent)
     case ElementType::TIME_TICK_ANCHOR:  return new TimeTickAnchor(parent->isSegment() ? toSegment(parent) : dummy->segment());
     case ElementType::LAISSEZ_VIB:       return new LaissezVib(parent->isNote() ? toNote(parent) : dummy->note());
     case ElementType::PARTIAL_TIE:       return new PartialTie(parent->isNote() ? toNote(parent) : dummy->note());
+    case ElementType::PARTIAL_LYRICSLINE: return new PartialLyricsLine(parent);
+    case ElementType::PARENTHESIS:       return new Parenthesis(parent->isSegment() ? toSegment(parent) : dummy->segment());
 
     case ElementType::LYRICSLINE:
     case ElementType::TEXTLINE_BASE:
@@ -271,6 +274,7 @@ EngravingItem* Factory::doCreateItem(ElementType type, EngravingItem* parent)
     case ElementType::VOLTA_SEGMENT:
     case ElementType::PEDAL_SEGMENT:
     case ElementType::LYRICSLINE_SEGMENT:
+    case ElementType::PARTIAL_LYRICSLINE_SEGMENT:
     case ElementType::LEDGER_LINE:
     case ElementType::STAFF_LINES:
     case ElementType::SELECTION:
@@ -475,9 +479,12 @@ Page* Factory::createPage(RootItem* parent, bool isAccessibleEnabled)
 }
 
 CREATE_ITEM_IMPL(PartialTie, ElementType::PARTIAL_TIE, Note, isAccessibleEnabled)
-COPY_ITEM_IMPL(PartialTie);
+COPY_ITEM_IMPL(PartialTie)
 
-Rest* Factory::createRest(Segment* parent, bool isAccessibleEnabled)
+CREATE_ITEM_IMPL(PartialLyricsLine, ElementType::PARTIAL_LYRICSLINE, EngravingItem, isAccessibleEnabled)
+COPY_ITEM_IMPL(PartialLyricsLine)
+
+Rest* Factory::createRest(Segment * parent, bool isAccessibleEnabled)
 {
     Rest* r = new Rest(parent);
     r->setAccessibleEnabled(isAccessibleEnabled);
@@ -780,3 +787,6 @@ SystemLockIndicator* Factory::createSystemLockIndicator(System * parent, const S
 }
 
 COPY_ITEM_IMPL(SystemLockIndicator)
+
+CREATE_ITEM_IMPL(Parenthesis, ElementType::PARENTHESIS, Segment, isAccessibleEnabled);
+COPY_ITEM_IMPL(Parenthesis)

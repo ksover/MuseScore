@@ -420,6 +420,10 @@ MeasureBase* Selection::startMeasureBase() const
         }
     }
 
+    if (tickStart().negative()) { // Tick is not set
+        return nullptr;
+    }
+
     bool mmrests = m_score->style().styleB(Sid::createMultiMeasureRests);
     Fraction refTick = tickStart();
 
@@ -439,6 +443,10 @@ MeasureBase* Selection::endMeasureBase() const
         }
     }
 
+    if (tickEnd().negative()) { // Tick is not set
+        return nullptr;
+    }
+
     bool mmrests = m_score->style().styleB(Sid::createMultiMeasureRests);
     Fraction refTick = tickEnd() - Fraction::eps();
 
@@ -447,6 +455,11 @@ MeasureBase* Selection::endMeasureBase() const
 
 std::vector<System*> Selection::selectedSystems() const
 {
+    EngravingItem* el = element();
+    if (el && el->isSystemLockIndicator()) {
+        return { const_cast<System*>(toSystemLockIndicator(el)->system()) };
+    }
+
     const MeasureBase* startMB = startMeasureBase();
     const MeasureBase* endMB = endMeasureBase();
     if (!startMB || !endMB) {
@@ -787,19 +800,20 @@ void Selection::updateSelectedElements()
         if (sp->isVolta()) {
             continue;
         }
-        if (sp->isSlur() || sp->isHairpin()) {
+        if (sp->isSlur() || sp->isHairpin() || sp->isOttava() || sp->isPedal() || sp->isTrill() || sp->isTextLine() || sp->isLetRing()
+            || sp->isPalmMute()) {
             // ignore if start & end elements not calculated yet
             if (!sp->startElement() || !sp->endElement()) {
                 continue;
             }
-            if ((sp->tick() >= stick && sp->tick() < etick) || (sp->tick2() >= stick && sp->tick2() < etick)) {
+            if ((sp->tick() >= stick && sp->tick() < etick) || (sp->tick2() >= stick && sp->tick2() <= etick)) {
                 EngravingItem* startCR = sp->startCR();
                 EngravingItem* endCR = sp->endCR();
                 const bool canSelectStart = (sp->startElement()->isTimeTickAnchor() || canSelect(startCR));
                 const bool canSelectEnd = (sp->endElement()->isTimeTickAnchor() || canSelect(endCR));
                 if (canSelectStart && canSelectEnd) {
                     for (auto seg : sp->spannerSegments()) {
-                        appendFiltered(seg);               // slur with start or end in range selection
+                        appendFiltered(seg);               // spanner with start or end in range selection
                     }
                 }
             }
@@ -817,10 +831,11 @@ void Selection::setRange(Segment* startSegment, Segment* endSegment, staff_idx_t
     assert(!(endSegment && !startSegment));
 
     m_startSegment  = startSegment;
-    m_endSegment    = endSegment;
+    m_endSegment = endSegment;
     m_activeSegment = endSegment;
-    m_staffStart    = staffStart;
-    m_staffEnd      = staffEnd;
+    m_staffStart = staffStart;
+    m_staffEnd = staffEnd;
+    m_activeTrack = staff2track(staffStart);
 
     if (m_state == SelState::RANGE) {
         m_score->setSelectionChanged(true);
@@ -844,8 +859,9 @@ void Selection::setRangeTicks(const Fraction& tick1, const Fraction& tick2, staf
     m_plannedTick1 = tick1;
     m_plannedTick2 = tick2;
     m_startSegment = m_endSegment = m_activeSegment = nullptr;
-    m_staffStart    = staffStart;
-    m_staffEnd      = staffEnd;
+    m_staffStart = staffStart;
+    m_staffEnd = staffEnd;
+    m_activeTrack = staff2track(staffStart);
 
     if (m_state == SelState::RANGE) {
         m_score->setSelectionChanged(true);
@@ -1062,7 +1078,6 @@ muse::ByteArray Selection::symbolListMimeData() const
     track_idx_t bottomTrack = 0;
     Segment* firstSeg    = 0;
     Fraction firstTick   = Fraction(0x7FFFFFFF, 1);
-    MapData mapData;
     Segment* seg         = 0;
     std::multimap<int64_t, MapData> map;
 
@@ -1218,8 +1233,7 @@ muse::ByteArray Selection::symbolListMimeData() const
             firstSeg  = seg;
             firstTick = seg->tick();
         }
-        mapData.e = e;
-        mapData.s = seg;
+        MapData mapData = { e, seg };
         map.insert(std::pair<int64_t, MapData>(((int64_t)track << 32) + seg->tick().ticks(), mapData));
     }
 

@@ -7523,7 +7523,7 @@ text x-height):</source>
     <message>
         <location filename="../../src/notation/internal/notationuiactions.cpp" line="469"/>
         <source>Respell pitches</source>
-        <translation>איות צלילים מחדש </translation>
+        <translation>איות צלילים מחדש</translation>
     </message>
     <message>
         <location filename="../../src/notation/internal/notationuiactions.cpp" line="475"/>
@@ -9350,7 +9350,7 @@ text x-height):</source>
     <message>
         <location filename="../../src/notation/internal/notationuiactions.cpp" line="468"/>
         <source>Respell &amp;pitches</source>
-        <translation>א&amp;יות צלילים מחדש </translation>
+        <translation>א&amp;יות צלילים מחדש</translation>
     </message>
     <message>
         <location filename="../../src/notation/internal/notationuiactions.cpp" line="474"/>
@@ -10485,9 +10485,9 @@ This action will not delete any of your scores.</source>
     </message>
     <message>
         <location filename="../../src/appshell/qml/AboutDialog.qml" line="140"/>
-        <source>Copyright © 1999-2024 MuseScore Limited.
+        <source>Copyright © 1999-2025 MuseScore Limited.
 Published under the &lt;a href=&quot;%1&quot;&gt;GNU General Public License version 3&lt;/a&gt;.</source>
-        <translation>כל הזכויות שמורות © 1999-2024 MuseScore בע&quot;מ.
+        <translation>כל הזכויות שמורות © 1999-2025 MuseScore בע&quot;מ.
 מפורסם תחת &lt;a href=&quot;%1&quot;&gt;הרישיון הציבורי הכללי של גנו גרסה 3&lt;/a&gt;.</translation>
     </message>
     <message>
@@ -12544,7 +12544,7 @@ Published under the &lt;a href=&quot;%1&quot;&gt;GNU General Public License vers
     <message>
         <location filename="../../src/engraving/types/typesconv.cpp" line="232"/>
         <source>Ottava segment</source>
-        <translation>מקטע Ottava </translation>
+        <translation>מקטע Ottava</translation>
     </message>
     <message>
         <location filename="../../src/engraving/types/typesconv.cpp" line="233"/>
@@ -23549,7 +23549,7 @@ In addition, Mastering MuseScore features a supportive community of musicians, w
     <message>
         <location filename="../../src/notation/view/noteinputbarcustomisemodel.cpp" line="234"/>
         <source>Separator line</source>
-        <translation>קו מפקיד</translation>
+        <translation>קו מפריד</translation>
     </message>
     <message>
         <location filename="../../src/notation/view/widgets/colorlabel.cpp" line="109"/>
