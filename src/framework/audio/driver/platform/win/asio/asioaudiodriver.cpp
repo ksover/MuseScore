@@ -420,12 +420,18 @@ AudioDeviceID AsioAudioDriver::defaultDevice() const
 
 bool AsioAudioDriver::open(const Spec& spec, Spec* activeSpec)
 {
-    LOGI() << "try open: " << spec.deviceId;
     IF_ASSERT_FAILED(!spec.deviceId.empty()) {
         return false;
     }
 
-    const char* name = spec.deviceId.c_str();
+    AudioDeviceID deviceId = spec.deviceId;
+    if (deviceId == DEFAULT_DEVICE_ID) {
+        deviceId = defaultDevice();
+    }
+
+    LOGI() << "try to open: " << deviceId;
+
+    const char* name = deviceId.c_str();
     bool ok = s_adata.drivers->loadDriver(const_cast<char*>(name));
     if (!ok) {
         LOGE() << "failed load driver: " << name;
@@ -473,6 +479,7 @@ bool AsioAudioDriver::open(const Spec& spec, Spec* activeSpec)
 
     // Set active
     s_adata.activeSpec = spec;
+    s_adata.activeSpec.deviceId = deviceId;
     OutputSpec& active = s_adata.activeSpec.output;
     active.audioChannelCount = 2;
 
