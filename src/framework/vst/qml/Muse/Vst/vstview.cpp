@@ -25,6 +25,10 @@
 
 #include "ivstplugininstance.h"
 
+#ifdef Q_OS_WIN
+#include <windows.h>
+#endif
+
 #ifdef Q_OS_LINUX
 #define USE_LINUX_RUNLOOP
 #endif
@@ -150,10 +154,25 @@ void VstView::init()
     updateViewGeometry();
 
     m_vstWindow->show();
+
+#ifdef Q_OS_WIN
+    HWND winHwnd = reinterpret_cast<HWND>(m_vstWindow->winId());
+    HWND viewHwnd = GetWindow(winHwnd, GW_CHILD);
+    m_rootHandle = GetAncestor(winHwnd, GA_ROOT);
+
+    if (viewHwnd && IsWindow(viewHwnd)) {
+        m_plugViewHandle = viewHwnd;
+        qApp->installNativeEventFilter(this);
+    }
+#endif
 }
 
 void VstView::deinit()
 {
+#ifdef Q_OS_WIN
+    qApp->removeNativeEventFilter(this);
+#endif
+
     m_screenMetricsTimer.stop();
 
     if (m_view) {
@@ -162,6 +181,8 @@ void VstView::deinit()
         m_view->removed();
 #endif
         m_view = nullptr;
+        m_plugViewHandle = nullptr;
+        m_rootHandle = nullptr;
 
         m_vstWindow->hide();
         delete m_vstWindow;
@@ -225,6 +246,61 @@ Steinberg::tresult VstView::resizeView(Steinberg::IPlugView* view, Steinberg::Vi
     m_resizeViewCalled = false;
 
     return Steinberg::kResultTrue;
+}
+
+bool VstView::nativeEventFilter(const QByteArray& eventType, void* message, qintptr* result)
+{
+#ifdef Q_OS_WIN
+    if (!m_vstWindow || !m_vstWindow->isVisible() || !m_plugViewHandle || !m_rootHandle) {
+        return false;
+    }
+
+    if (eventType != QByteArrayLiteral("windows_generic_MSG")) {
+        return false;
+    }
+
+    const MSG* msg = static_cast<MSG*>(message);
+    if (!msg->hwnd) {
+        return false;
+    }
+    if (msg->message != WM_ERASEBKGND && msg->message != WM_WINDOWPOSCHANGED) {
+        return false;
+    }
+
+    if (msg->hwnd != m_rootHandle) {
+        const HWND root = GetAncestor(msg->hwnd, GA_ROOT);
+        if (root != m_rootHandle) {
+            return false;
+        }
+    }
+
+    if (msg->message == WM_ERASEBKGND) {
+        *result = 1;
+        return true; // tell Windows: "already erased"
+    }
+
+    if (msg->message == WM_WINDOWPOSCHANGED && !m_updatePending) {
+        m_updatePending = true;
+        QTimer::singleShot(16, this, [this]() { // ~60 FPS
+            m_updatePending = false;
+
+            HWND hwnd = reinterpret_cast<HWND>(m_plugViewHandle);
+            if (!hwnd || !IsWindow(hwnd)) {
+                m_plugViewHandle = nullptr;
+                return;
+            }
+
+            RedrawWindow(hwnd, nullptr, nullptr,
+                         RDW_INVALIDATE | RDW_UPDATENOW | RDW_NOERASE);
+        });
+    }
+#else
+    Q_UNUSED(eventType);
+    Q_UNUSED(message);
+    Q_UNUSED(result);
+#endif
+
+    return false;
 }
 
 void VstView::updateScreenMetrics()
