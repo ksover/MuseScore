@@ -35,7 +35,7 @@ using namespace mu::appshell;
 
 static const QString imagePath(":/resources/LoadingScreen.svg");
 
-static constexpr QSize loadingScreenSize(810, 406);
+static constexpr QSize loadingScreenSize(800, 380);
 
 static const QColor messageColor("#F1F1EE");
 
