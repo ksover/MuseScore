@@ -85,6 +85,9 @@ signals:
     void minimumWidthChanged();
 
 private:
+    void deinitPluginView();
+
+    bool eventFilter(QObject* watched, QEvent* event) override;
     bool nativeEventFilter(const QByteArray& eventType, void* message, qintptr* result) override;
 
     struct ScreenMetrics {
