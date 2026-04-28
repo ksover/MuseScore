@@ -471,11 +471,7 @@ bool AsioAudioDriver::open(const Spec& spec, Spec* activeSpec)
            << " preferred: " << metrics.preferredSize
            << " granularity: " << metrics.granularity;
 
-    ok = ASIOGetSampleRate(&metrics.sampleRate) == ASE_OK;
-    if (!ok) {
-        LOGE() << "failed get sample rate, driver: " << name;
-        return ok;
-    }
+    const bool useDeviceSampleRate = ASIOGetSampleRate(&metrics.sampleRate) == ASE_OK;
 
     // Set active
     s_adata.activeSpec = spec;
@@ -487,11 +483,19 @@ bool AsioAudioDriver::open(const Spec& spec, Spec* activeSpec)
                                           (samples_t)metrics.minSize,
                                           (samples_t)metrics.maxSize);
 
-    ok = ASIOSetSampleRate(static_cast<double>(spec.output.sampleRate)) == ASE_OK;
-    if (!ok) {
-        LOGW() << "failed set sample rate: " << spec.output.sampleRate << ", driver: " << name;
+    if (useDeviceSampleRate) {
+        active.sampleRate = static_cast<sample_rate_t>(metrics.sampleRate);
+        LOGI() << "using ASIO device sample rate: " << active.sampleRate;
+    } else {
+        LOGE() << "failed get sample rate, driver: " << name
+               << ", trying ASIOSetSampleRate: " << spec.output.sampleRate;
+        ok = ASIOSetSampleRate(static_cast<double>(spec.output.sampleRate)) == ASE_OK;
+        if (!ok) {
+            LOGE() << "failed set sample rate: " << spec.output.sampleRate << ", driver: " << name;
+            return false;
+        }
+        active.sampleRate = spec.output.sampleRate;
     }
-    active.sampleRate = ok ? spec.output.sampleRate : static_cast<sample_rate_t>(metrics.sampleRate);
 
     LOGI() << "active spec"
            << " audioChannelCount: " << active.audioChannelCount
