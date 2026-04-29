@@ -95,7 +95,7 @@ private:
         double devicePixelRatio = 0.0;
     };
 
-    void updateScreenMetrics();
+    void updateScreenMetrics(QScreen* screen);
     void updateViewGeometry();
 
     int m_instanceId = -1;
