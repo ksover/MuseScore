@@ -616,7 +616,6 @@ void TWrite::write(const Accidental* item, XmlWriter& xml, WriteContext& ctx)
 void TWrite::write(const ActionIcon* item, XmlWriter& xml, WriteContext&)
 {
     xml.startElement(item);
-    xml.tag("subtype", int(item->actionType()));
     xml.tag("action", String::fromStdString(item->actionCode()));
     xml.endElement();
 }

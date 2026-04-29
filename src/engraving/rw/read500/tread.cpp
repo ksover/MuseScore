@@ -1835,12 +1835,7 @@ void TRead::read(ActionIcon* i, XmlReader& e, ReadContext&)
 {
     while (e.readNextStartElement()) {
         const AsciiStringView tag(e.name());
-        if (tag == "subtype") {
-            // This is fragile, see https://github.com/musescore/MuseScore/issues/24060#issuecomment-2299665318.
-            // Keeping it here for compatbility in case an ActionIcon from some old version doesn't have an <action> tag.
-            // If the <action> tag is present, it will override this value, see below.
-            i->setActionType(static_cast<ActionIconType>(e.readInt()));
-        } else if (tag == "action") {
+        if (tag == "action") {
             const std::string actionCode = e.readText().toStdString();
             i->setAction(actionCode, 0);
             setActionIconTypeFromAction(i, actionCode);
