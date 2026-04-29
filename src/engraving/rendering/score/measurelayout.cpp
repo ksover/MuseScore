@@ -953,39 +953,11 @@ void MeasureLayout::layoutMeasure(MeasureBase* currentMB, LayoutContext& ctx)
         return;
     }
 
-    if (!currentMB) {
+    if (!currentMB || !currentMB->isMeasure()) {
         return;
     }
-
-    if (!currentMB->isMeasure()) {
-        assert(currentMB->tick() == ctx.state().tick());
-
-        const LayoutBreak* layoutBreak = currentMB->sectionBreakElement();
-        if (layoutBreak && layoutBreak->startWithMeasureOne()) {
-            ctx.mutState().setMeasureNumber(0);
-        }
-
-        return;
-    }
-
-    //-----------------------------------------
-    //    process one measure
-    //-----------------------------------------
 
     Measure* measure = toMeasure(currentMB);
-
-    int measureNumber = adjustMeasureNumber(measure, ctx.state().measureNumber());
-    LAYOUT_CALL() << LAYOUT_ITEM_INFO(measure) << " measureNumber: " << measureNumber;
-
-    ctx.mutState().setMeasureNumber(measureNumber);
-
-    createMultiMeasureRestsIfNeed(measure, ctx);
-
-    currentMB = ctx.mutState().curMeasure();
-    measure = toMeasure(currentMB);
-
-    measure->moveTicks(ctx.state().tick() - measure->tick());
-    ctx.mutState().setTick(ctx.state().tick() + measure->ticks());
 
     if (ctx.conf().isLinearMode() && (measure->tick() < ctx.state().startTick() || measure->tick() > ctx.state().endTick())) {
         return;
@@ -1185,7 +1157,44 @@ void MeasureLayout::getNextMeasure(LayoutContext& ctx)
 
     moveToNextMeasure(ctx);
 
-    layoutMeasure(ctx.mutState().curMeasure(), ctx);
+    updateTicksMeasNumbersAndMMRests(ctx.mutState().curMeasure(), ctx);
+}
+
+void MeasureLayout::updateTicksMeasNumbersAndMMRests(MeasureBase* currentMB, LayoutContext& ctx)
+{
+    IF_ASSERT_FAILED(currentMB == ctx.state().curMeasure()) {
+        return;
+    }
+
+    if (!currentMB) {
+        return;
+    }
+
+    if (!currentMB->isMeasure()) {
+        assert(currentMB->tick() == ctx.state().tick());
+
+        const LayoutBreak* layoutBreak = currentMB->sectionBreakElement();
+        if (layoutBreak && layoutBreak->startWithMeasureOne()) {
+            ctx.mutState().setMeasureNumber(0);
+        }
+
+        return;
+    }
+
+    Measure* measure = toMeasure(currentMB);
+
+    int measureNumber = adjustMeasureNumber(measure, ctx.state().measureNumber());
+
+    ctx.mutState().setMeasureNumber(measureNumber);
+
+    createMultiMeasureRestsIfNeed(measure, ctx);
+
+    currentMB = ctx.mutState().curMeasure();
+    measure = toMeasure(currentMB);
+
+    measure->moveTicks(ctx.state().tick() - measure->tick());
+
+    ctx.mutState().setTick(ctx.state().tick() + measure->ticks());
 }
 
 //---------------------------------------------------------
