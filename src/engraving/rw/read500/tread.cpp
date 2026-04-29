@@ -5,7 +5,7 @@
  * MuseScore Studio
  * Music Composition & Notation
  *
- * Copyright (C) 2021 MuseScore Limited
+ * Copyright (C) 2026 MuseScore Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as
@@ -146,7 +146,7 @@
 
 using namespace muse::draw;
 using namespace mu::engraving;
-using namespace mu::engraving::read460;
+using namespace mu::engraving::read500;
 
 void TRead::readItem(EngravingItem* item, XmlReader& xml, ReadContext& ctx)
 {
@@ -515,7 +515,7 @@ void TRead::readProperty(EngravingItem* item, XmlReader& xml, ReadContext& ctx, 
         v = v.value<PlacementV>() == PlacementV::ABOVE ? PropertyValue(DirectionV::UP) : PropertyValue(DirectionV::DOWN);
     }
 
-    if (pid == Pid::OFFSET) {
+    if (pid == Pid::OFFSET && ctx.mscVersion() < 500) {
         compat::CompatUtils::migrateOffset500(item, v);
     }
 

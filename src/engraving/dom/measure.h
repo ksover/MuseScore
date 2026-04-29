@@ -43,6 +43,10 @@ namespace mu::engraving::read460 {
 class MeasureRead;
 }
 
+namespace mu::engraving::read500 {
+class MeasureRead;
+}
+
 namespace mu::engraving::write {
 class MeasureWrite;
 }
