@@ -2861,7 +2861,7 @@ void TRead::read(GuitarBend* g, XmlReader& e, ReadContext& ctx)
     while (e.readNextStartElement()) {
         const AsciiStringView tag = e.name();
         if (tag == "guitarBendType") {
-            g->setBendType(static_cast<GuitarBendType>(e.readInt()));
+            g->setBendType(TConv::fromXml(e.readAsciiText(), GuitarBendType::BEND));
         } else if (tag == "GuitarBendHold") {
             GuitarBendHold* hold = new GuitarBendHold(g);
             TRead::read(hold, e, ctx);
@@ -2974,9 +2974,9 @@ void TRead::read(Harmony* h, XmlReader& e, ReadContext& ctx)
     while (e.readNextStartElement()) {
         const AsciiStringView tag(e.name());
         if (tag == "bassCase") {
-            h->setBassCase(static_cast<NoteCaseType>(e.readInt()));
+            h->setBassCase(TConv::fromXml(e.readAsciiText(), NoteCaseType::AUTO));
         } else if (tag == "rootCase") {
-            h->setRootCase(static_cast<NoteCaseType>(e.readInt()));
+            h->setRootCase(TConv::fromXml(e.readAsciiText(), NoteCaseType::AUTO));
         } else if (tag == "harmonyInfo") {
             HarmonyInfo* info = new HarmonyInfo(ctx.score());
             readHarmonyInfo(info, e);

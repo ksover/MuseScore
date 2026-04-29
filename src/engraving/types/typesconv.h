@@ -24,6 +24,8 @@
 
 #include "types.h"
 
+#include "engraving/dom/guitarbend.h"
+#include "engraving/dom/pitchspelling.h"
 #include "engraving/dom/tremolobar.h"
 
 namespace mu::engraving {
@@ -196,6 +198,12 @@ public:
     static const TranslatableString& userName(ChordLineType v, bool straight, bool wavy);
     static AsciiStringView toXml(ChordLineType v);
     static ChordLineType fromXml(const AsciiStringView& tag, ChordLineType def);
+
+    static AsciiStringView toXml(GuitarBendType v);
+    static GuitarBendType fromXml(const AsciiStringView& tag, GuitarBendType def);
+
+    static AsciiStringView toXml(NoteCaseType v);
+    static NoteCaseType fromXml(const AsciiStringView& tag, NoteCaseType def);
 
     static const String& userName(DrumNum v);
 
