@@ -959,6 +959,10 @@ void MeasureLayout::layoutMeasure(MeasureBase* currentMB, LayoutContext& ctx)
 
     Measure* measure = toMeasure(currentMB);
 
+    if (!measure->ldata()->needLayout()) {
+        return;
+    }
+
     if (ctx.conf().isLinearMode() && (measure->tick() < ctx.state().startTick() || measure->tick() > ctx.state().endTick())) {
         return;
     }
@@ -966,6 +970,8 @@ void MeasureLayout::layoutMeasure(MeasureBase* currentMB, LayoutContext& ctx)
     if (ctx.dom().allStavesInvisible()) {
         return;
     }
+
+    measure->mutldata()->setNeedLayout(false);
 
     // Check if requested cross-staff is possible
     // This must happen before cmdUpdateNotes
@@ -1158,6 +1164,11 @@ void MeasureLayout::getNextMeasure(LayoutContext& ctx)
     moveToNextMeasure(ctx);
 
     updateTicksMeasNumbersAndMMRests(ctx.mutState().curMeasure(), ctx);
+
+    MeasureBase* mb = ctx.mutState().curMeasure();
+    if (mb && mb->isMeasure()) {
+        toMeasure(mb)->mutldata()->setNeedLayout(true);
+    }
 }
 
 void MeasureLayout::updateTicksMeasNumbersAndMMRests(MeasureBase* currentMB, LayoutContext& ctx)
