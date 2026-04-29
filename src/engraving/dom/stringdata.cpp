@@ -524,8 +524,10 @@ int StringData::fret(int pitch, int string, int pitchOffset) const
 
 void StringData::sortChordNotesUseSameString(const Chord* chord, int pitchOffset) const
 {
-    int capoFret = chord->staff()->capo(chord->tick()).fretPosition;
+    const CapoParams& capo = chord->staff()->capo(chord->tick());
+    int capoFret = capo.fretPosition;
     const bool skipDeadNotes = chord->configuration()->keepDeadNotesUnchangedOnTranspose();
+    const int pitchOffsetWithCapo = pitchOffsetAt(chord->staff(), chord->tick());
 
     bool anyReset = false;
     for (Note* note : chord->notes()) {
@@ -535,27 +537,61 @@ void StringData::sortChordNotesUseSameString(const Chord* chord, int pitchOffset
         if (skipDeadNotes && note->deadNote()) {
             continue;
         }
-        if (note->string() < 0 || note->fret() < 0) {
+        if (note->string() < 0) {
             anyReset = true;
             continue;
         }
         int pitch = getPitch(note->string(), note->fret() + capoFret, pitchOffset);
         int newFret = note->fret() + note->pitch() - pitch;
         if (newFret < 0) {
-            anyReset = true;
+            if (note->configuration()->negativeFretsAllowed()) {
+                note->setFret(newFret);
+            } else {
+                anyReset = true;
+            }
         } else {
             note->setFret(newFret);
         }
     }
 
-    // If any note in the chord couldn't keep its string, reset ALL notes
-    // so fretChords/convertPitch assigns the entire chord optimally.
+    // Returns true if a valid non-negative placement exists for this note.
+    // Used in the detection and reset passes below.
+    auto hasNonNegativeAlternative = [&](const Note* note) {
+        int string = 0;
+        int fret = 0;
+        return convertPitch(note->pitch(), pitchOffsetWithCapo, &string, &fret, capo);
+    };
+
+    // When negativeFretsAllowed kept a note with a negative fret, check if a
+    // valid (non-negative) fret exists on any string. If so, resetting the
+    // chord lets fretChords find a more compact arrangement.
+    if (!anyReset) {
+        for (Note* note : chord->notes()) {
+            if (note->displayFret() != Note::DisplayFretOption::NoHarmonic) {
+                continue;
+            }
+            if (skipDeadNotes && note->deadNote()) {
+                continue;
+            }
+            if (note->fret() < 0 && hasNonNegativeAlternative(note)) {
+                anyReset = true;
+                break;
+            }
+        }
+    }
+
+    // Reset notes so fretChords/convertPitch assigns the chord optimally.
+    // Preserve negative-fret notes that have no valid in-range alternative —
+    // their negative fret is the only option for that pitch.
     if (anyReset) {
         for (Note* note : chord->notes()) {
             if (note->displayFret() != Note::DisplayFretOption::NoHarmonic) {
                 continue;
             }
             if (skipDeadNotes && note->deadNote()) {
+                continue;
+            }
+            if (note->fret() < 0 && !hasNonNegativeAlternative(note)) {
                 continue;
             }
             note->setString(INVALID_STRING_INDEX);
