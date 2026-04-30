@@ -1161,6 +1161,10 @@ Rectangle {
             model: tableProxy
 
             headerCapitalization: Font.Capitalize
+            horizontalHeaderNavigationEnabled: true
+
+            navigationPanel.section: navSec
+            navigationPanel.order: 2
 
             sourceComponentCallback: function(type) {
                 switch(type) {

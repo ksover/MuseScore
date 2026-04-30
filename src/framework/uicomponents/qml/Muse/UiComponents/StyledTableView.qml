@@ -146,6 +146,20 @@ Item {
                 }
             }
 
+            TableView.onReused: {
+                // Sorting can cause header items to be reused for different columns,
+                // invalidating indices and thereby navigation focus.
+
+                if (!root.navigationPanel.isNavigationOnHeaders) {
+                    return
+                }
+
+                const idx = root.navigationPanel.navigationIndexForRestore
+                if (idx && index === idx.x) {
+                    navigation.requestActive(true)
+                }
+            }
+
             onFormatChangeRequested: function(formatId) {
                 display.currentFormatId = formatId
             }
