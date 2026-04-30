@@ -57,11 +57,16 @@ class TableSortFilterProxyModel : public QSortFilterProxyModel
 
     Q_PROPERTY(QItemSelectionModel* selectionModel READ selectionModel CONSTANT)
     Q_PROPERTY(int rowCount READ rowCount NOTIFY rowCountChanged)
+    Q_PROPERTY(int sortIndicatorColumn READ sortIndicatorColumn NOTIFY sortChanged)
+    Q_PROPERTY(ColumnSortOrder::Type sortIndicatorOrder READ sortIndicatorOrder NOTIFY sortChanged)
 
 public:
     explicit TableSortFilterProxyModel(QObject* parent = nullptr);
 
     QItemSelectionModel* selectionModel() const;
+
+    int sortIndicatorColumn() const;
+    ColumnSortOrder::Type sortIndicatorOrder() const;
 
     void setSourceModel(QAbstractItemModel* sourceModel) override;
 
@@ -69,7 +74,6 @@ public:
     Q_INVOKABLE void clearSort();
     Q_INVOKABLE void invalidateFilters();
     Q_INVOKABLE int mapRowToSource(int proxyRow) const;
-    Q_INVOKABLE ColumnSortOrder::Type columnSortOrder(int column) const;
 
 signals:
     void rowCountChanged();

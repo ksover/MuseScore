@@ -53,6 +53,22 @@ QItemSelectionModel* TableSortFilterProxyModel::selectionModel() const
     return m_selectionModel;
 }
 
+int TableSortFilterProxyModel::sortIndicatorColumn() const
+{
+    if (m_sortPipeline.empty() || m_sortPipeline.back().column != m_sortIconColumn) {
+        return -1;
+    }
+    return m_sortIconColumn;
+}
+
+ColumnSortOrder::Type TableSortFilterProxyModel::sortIndicatorOrder() const
+{
+    if (m_sortPipeline.empty() || m_sortPipeline.back().column != m_sortIconColumn) {
+        return ColumnSortOrder::Type::Unsorted;
+    }
+    return m_sortPipeline.back().ascending ? ColumnSortOrder::Type::Ascending : ColumnSortOrder::Type::Descending;
+}
+
 void TableSortFilterProxyModel::setSourceModel(QAbstractItemModel* sourceModel)
 {
     QSortFilterProxyModel::setSourceModel(sourceModel);
@@ -111,20 +127,6 @@ int TableSortFilterProxyModel::mapRowToSource(int proxyRow) const
 {
     const QModelIndex idx = mapToSource(index(proxyRow, 0));
     return idx.isValid() ? idx.row() : -1;
-}
-
-ColumnSortOrder::Type TableSortFilterProxyModel::columnSortOrder(int column) const
-{
-    if (column != m_sortIconColumn) {
-        return ColumnSortOrder::Type::Unsorted;
-    }
-
-    const auto it = std::find_if(m_sortPipeline.begin(), m_sortPipeline.end(),
-                                 [column](const SortKey& k) { return k.column == column; });
-    if (it != m_sortPipeline.end() - 1) {
-        return ColumnSortOrder::Type::Unsorted;
-    }
-    return it->ascending ? ColumnSortOrder::Type::Ascending : ColumnSortOrder::Type::Descending;
 }
 
 void TableSortFilterProxyModel::reapplySort()

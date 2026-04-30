@@ -1108,7 +1108,7 @@ Rectangle {
             valueTitle: "Age"
 
             model: ListModel {
-                 ListElement {
+                ListElement {
                     name: "Alex"
                     age: 12
                     valueType: "Int"
@@ -1174,9 +1174,8 @@ Rectangle {
                 return null
             }
 
-            sortOrderProvider: function(column) {
-                return tableProxy.columnSortOrder(column)
-            }
+            sortIndicatorColumn: tableProxy.sortIndicatorColumn
+            sortIndicatorOrder: tableProxy.sortIndicatorOrder
 
             onHorizontalHeaderClicked: function (column) {
                 tableProxy.toggleColumnSort(column)
