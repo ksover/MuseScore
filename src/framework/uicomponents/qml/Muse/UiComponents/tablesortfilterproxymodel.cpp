@@ -24,7 +24,6 @@
 #include "framework/global/types/val.h"
 #include "framework/uicomponents/qml/Muse/UiComponents/itemmultiselectionmodel.h"
 #include "framework/uicomponents/qml/Muse/UiComponents/internal/tableviewcell.h"
-#include "framework/uicomponents/qml/Muse/UiComponents/internal/tableviewlistcell.h"
 #include "framework/uicomponents/view/modelutils.h"
 
 namespace {
@@ -32,10 +31,7 @@ muse::Val extractSortValue(const QVariant& data)
 {
     if (data.canConvert<muse::uicomponents::TableViewCell*>()) {
         if (auto* cell = data.value<muse::uicomponents::TableViewCell*>()) {
-            if (auto* listCell = qobject_cast<muse::uicomponents::TableViewListCell*>(cell)) {
-                return muse::Val(listCell->current());
-            }
-            return cell->value();
+            return cell->sortValue();
         }
     }
     return muse::Val::fromQVariant(data);
