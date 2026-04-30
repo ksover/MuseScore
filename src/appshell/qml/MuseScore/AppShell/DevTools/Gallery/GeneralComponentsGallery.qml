@@ -1189,6 +1189,10 @@ Rectangle {
                     property int row
                     property int column
 
+                    property NavigationPanel navigationPanel
+                    property int navigationRow
+                    property int navigationColumnStart
+
                     property string accessibleName: label.text
 
                     signal changed(string stub)
