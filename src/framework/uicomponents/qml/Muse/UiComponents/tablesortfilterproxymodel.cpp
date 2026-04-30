@@ -77,11 +77,8 @@ void TableSortFilterProxyModel::toggleColumnSort(int column)
 
     if (it == m_sortPipeline.end()) {
         m_sortPipeline.push_back({ column, true });
-        if (static_cast<int>(m_sortPipeline.size()) > m_maxSortKeys) {
-            m_sortPipeline.erase(m_sortPipeline.begin());
-        }
     } else if (it == m_sortPipeline.end() - 1) {
-        // Only Cycle through sort order if this column is already the primary sort key
+        // Only cycle through sort order if this column is already the primary sort key
         if (!it->ascending) {
             // descending -> unsorted state transition ; just remove from the sort pipeline.
             m_sortPipeline.erase(it);

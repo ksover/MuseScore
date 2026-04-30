@@ -87,8 +87,6 @@ protected:
     // compares them via muse::Val; override for domain-specific ordering.
     virtual int compareCells(int column, int leftSourceRow, int rightSourceRow) const;
 
-    void setMaxSortKeys(int maxKeys) { m_maxSortKeys = maxKeys; }
-
 private:
     void reapplySort();
 
@@ -100,6 +98,5 @@ private:
     int m_sortIconColumn = -1;
 
     QItemSelectionModel* m_selectionModel = nullptr;
-    int m_maxSortKeys = 3;
 };
 }
