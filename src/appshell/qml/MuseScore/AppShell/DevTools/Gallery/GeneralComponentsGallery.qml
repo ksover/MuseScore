@@ -1145,8 +1145,8 @@ Rectangle {
         StyledTableView  {
             id: tableView
 
-            width: 560
-            height: 226
+            width: 1100
+            height: 360
 
             TestTableViewModel {
                 id: tableModel
