@@ -35,7 +35,8 @@ static std::vector<QVariantMap> welcomeDialogData()
     item1.insert("description", muse::qtrc("appshell/welcome",
                                            "Includes essential new engraving tools, major improvements to playback, video export, dive notation for guitar, and features to speed up your workflow."));
     item1.insert("buttonText", muse::qtrc("appshell/welcome", "Watch video"));
-    item1.insert("destinationUrl", "https://youtu.be/grKX-cBEEmM");
+    item1.insert("destinationUrl",
+                 "https://deeplink.musescore.com/desktop-editor-open-youtube?utm_source=mss-app&utm_medium=welcome-dialog&utm_campaign=4.7-video&app_version=4.7");
 
     QVariantMap item2;
     item2.insert("title", muse::qtrc("appshell/welcome", "Enjoy free cloud storage"));
