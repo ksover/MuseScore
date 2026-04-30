@@ -363,7 +363,7 @@ void EngineRpcController::init()
 
             if (auto actx = audioContext(msg.ctxId)) {
                 RetVal<AudioInputParams> ret = actx->inputParams(trackId);
-                return make_response_ret(msg, ret.ret);
+                return make_response_ret(msg, ret);
             } else {
                 return make_response_ret(msg, RetVal<AudioInputParams>::make_ret(Err::InvalidContext));
             }
