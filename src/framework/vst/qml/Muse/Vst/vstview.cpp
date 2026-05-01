@@ -140,7 +140,7 @@ void VstView::init()
         return;
     }
 
-    updateScreenMetrics();
+    updateScreenMetrics(window()->screen());
 
     m_view->setFrame(this);
 
@@ -154,17 +154,25 @@ void VstView::init()
         return;
     }
 
-    // Do not rely on `QWindow::screenChanged` signal, which often does not get emitted though it should.
-    // Proactively check for screen resolution changes instead.
+    connect(window(), &QWindow::screenChanged, this, [this](QScreen* screen) {
+        updateScreenMetrics(screen);
+
+        QMetaObject::invokeMethod(this, [this] {
+            updateViewGeometry();
+        }, Qt::QueuedConnection);
+    });
+
+    // Do not only rely on `QWindow::screenChanged` signal, which often does not get emitted though it should.
+    // Proactively check for screen resolution changes.
     connect(&m_screenMetricsTimer, &QTimer::timeout, this, [this]() {
         QWindow* win = window();
         if (!win) {
             return;
         }
-        const QScreen* const screen = win->screen();
+        QScreen* screen = win->screen();
         if (m_currentScreen != screen || m_screenMetrics.availableSize != screen->availableSize()
             || !is_equal(m_screenMetrics.devicePixelRatio, screen->devicePixelRatio())) {
-            updateScreenMetrics();
+            updateScreenMetrics(screen);
             updateViewGeometry();
         }
     });
@@ -344,9 +352,9 @@ bool VstView::nativeEventFilter(const QByteArray& eventType, void* message, qint
     return false;
 }
 
-void VstView::updateScreenMetrics()
+void VstView::updateScreenMetrics(QScreen* screen)
 {
-    m_currentScreen = window()->screen();
+    m_currentScreen = screen;
     m_screenMetrics.availableSize = m_currentScreen->availableSize();
 #ifdef Q_OS_MAC
     constexpr auto devicePixelRatio = 1.0;
@@ -354,6 +362,13 @@ void VstView::updateScreenMetrics()
     const auto devicePixelRatio = m_currentScreen->devicePixelRatio();
 #endif
     m_screenMetrics.devicePixelRatio = devicePixelRatio;
+
+#ifdef Q_OS_WIN
+    Steinberg::FUnknownPtr<IPluginContentScaleHandler> scalingHandler(m_view);
+    if (scalingHandler) {
+        scalingHandler->setContentScaleFactor(m_screenMetrics.devicePixelRatio);
+    }
+#endif
 }
 
 void VstView::updateViewGeometry()
