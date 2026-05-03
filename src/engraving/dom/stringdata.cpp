@@ -580,7 +580,6 @@ bool StringData::tryResolveStringConflictWithOutOfRangeFret(const Note* note, in
 void StringData::sortChordNotesUseSameString(const Chord* chord, int pitchOffset) const
 {
     const CapoParams& capo = chord->staff()->capo(chord->tick());
-    int capoFret = capo.fretPosition;
     const bool skipDeadNotes = chord->configuration()->keepDeadNotesUnchangedOnTranspose();
     const int pitchOffsetWithCapo = pitchOffsetAt(chord->staff(), chord->tick());
 
@@ -596,7 +595,7 @@ void StringData::sortChordNotesUseSameString(const Chord* chord, int pitchOffset
             anyReset = true;
             continue;
         }
-        int pitch = getPitch(note->string(), note->fret() + capoFret, pitchOffset);
+        int pitch = getPitch(note->string(), note->fret(), chord->staff(), chord->tick());
         int newFret = note->fret() + note->pitch() - pitch;
         if (newFret < 0) {
             if (note->configuration()->negativeFretsAllowed()) {
