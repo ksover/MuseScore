@@ -75,9 +75,11 @@ QString CommonAudioDriverConfigurationModel::currentDeviceId() const
 
 QVariantList CommonAudioDriverConfigurationModel::deviceList() const
 {
-    QVariantList result;
-
     AudioDeviceList devices = audioDriverController()->availableOutputDevices();
+
+    QVariantList result;
+    result.reserve(devices.size());
+
     for (const AudioDevice& device : devices) {
         QVariantMap obj;
         obj["value"] = QString::fromStdString(device.id);
@@ -106,8 +108,10 @@ unsigned int CommonAudioDriverConfigurationModel::bufferSize() const
 
 QList<unsigned int> CommonAudioDriverConfigurationModel::bufferSizeList() const
 {
-    QList<unsigned int> result;
     std::vector<samples_t> bufferSizes = audioDriverController()->availableOutputDeviceBufferSizes();
+
+    QList<unsigned int> result;
+    result.reserve(bufferSizes.size());
 
     for (samples_t bufferSize : bufferSizes) {
         result << static_cast<unsigned int>(bufferSize);
@@ -128,8 +132,10 @@ unsigned int CommonAudioDriverConfigurationModel::sampleRate() const
 
 QList<unsigned int> CommonAudioDriverConfigurationModel::sampleRateList() const
 {
-    QList<unsigned int> result;
     std::vector<sample_rate_t> sampleRates = audioDriverController()->availableOutputDeviceSampleRates();
+
+    QList<unsigned int> result;
+    result.reserve(sampleRates.size());
 
     for (sample_rate_t sampleRate : sampleRates) {
         result << static_cast<unsigned int>(sampleRate);
