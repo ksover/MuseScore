@@ -8300,6 +8300,7 @@ void ExportMusicXml::writeMeasureTracks(const Measure* const m,
                     }
                     // Just to include them
                     annotations(this, strack, etrack, track, partRelStaffNo, seg);
+                    break;
                 }
                 continue;
             }
