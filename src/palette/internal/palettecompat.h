@@ -39,6 +39,9 @@ private:
     static void addNewFretboardDiagramItems(Palette& fretboardDiagramPalette, engraving::Score* paletteScore);
     static void addNewRepeatItems(Palette& repeatPalette, engraving::Score* paletteScore);
     static void addNewLayoutItems(Palette& layoutPalette);
+    static void addNewKeyboardItems(Palette& keyPalette, engraving::Score* paletteScore);
+    static void addChordBrackets(Palette& palette, engraving::Score* paletteScore, size_t position = muse::nidx);
+
     static void removeOldItems(Palette& palette);
 };
 }
