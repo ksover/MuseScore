@@ -616,7 +616,6 @@ void TWrite::write(const Accidental* item, XmlWriter& xml, WriteContext& ctx)
 void TWrite::write(const ActionIcon* item, XmlWriter& xml, WriteContext&)
 {
     xml.startElement(item);
-    xml.tag("subtype", int(item->actionType()));
     xml.tag("action", String::fromStdString(item->actionCode()));
     xml.endElement();
 }
@@ -1547,7 +1546,7 @@ void TWrite::write(const GuitarBend* item, XmlWriter& xml, WriteContext& ctx)
         return;
     }
     xml.startElement(item);
-    xml.tag("guitarBendType", static_cast<int>(item->bendType()));
+    xml.tag("guitarBendType", TConv::toXml(item->bendType()));
     xml.tag("bendStartTimeFactor", item->startTimeFactor());
     xml.tag("bendEndTimeFactor", item->endTimeFactor());
 
@@ -1800,11 +1799,11 @@ void TWrite::write(const Harmony* item, XmlWriter& xml, WriteContext& ctx)
 
     // check tpcs valid?
     if (item->rootCase() != NoteCaseType::CAPITAL) {
-        xml.tag("rootCase", static_cast<int>(item->rootCase()));
+        xml.tag("rootCase", TConv::toXml(item->rootCase()));
     }
 
     if (item->bassCase() != NoteCaseType::CAPITAL) {
-        xml.tag("bassCase", static_cast<int>(item->bassCase()));
+        xml.tag("bassCase", TConv::toXml(item->bassCase()));
     }
 
     for (const HarmonyInfo* info : item->chords()) {
