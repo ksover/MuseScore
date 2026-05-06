@@ -514,32 +514,6 @@ DockPage {
         },
 
         DockPanel {
-            id: drumsetPanel
-
-            objectName: root.pageModel.drumsetPanelName()
-            title: qsTrc("appshell", "Drumset tools")
-
-            height: 64
-            minimumHeight: 64
-            maximumHeight: 64
-
-            //! NOTE: hidden by default
-            visible: false
-
-            floatable: false
-            closable: false
-
-            location: Location.Bottom
-
-            navigationSection: root.navigationPanelSec(drumsetPanel.location)
-
-            DrumsetPanel {
-                navigationSection: drumsetPanel.navigationSection
-                contentNavigationPanelOrderStart: drumsetPanel.contentNavigationPanelOrderStart
-            }
-        },
-
-        DockPanel {
             id: percussionPanel
 
             objectName: root.pageModel.percussionPanelName()
