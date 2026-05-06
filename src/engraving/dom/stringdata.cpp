@@ -577,7 +577,7 @@ bool StringData::tryResolveStringConflictWithOutOfRangeFret(const Note* note, in
 //    chord's pitches are transposed, updating only the fret.
 //---------------------------------------------------------
 
-void StringData::sortChordNotesUseSameString(const Chord* chord, int pitchOffset) const
+void StringData::sortChordNotesUseSameString(const Chord* chord) const
 {
     const CapoParams& capo = chord->staff()->capo(chord->tick());
     const bool skipDeadNotes = chord->configuration()->keepDeadNotesUnchangedOnTranspose();
@@ -673,7 +673,7 @@ void StringData::sortChordNotes(std::map<int, Note*>& sortedNotes, const Chord* 
     int pitchOffset = -transp + chord->staff()->pitchOffset(chord->segment()->tick());
 
     if (useSameString) {
-        sortChordNotesUseSameString(chord, pitchOffset);
+        sortChordNotesUseSameString(chord);
     }
 
     for (Note* note : chord->notes()) {
