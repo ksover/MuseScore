@@ -503,7 +503,9 @@ MixerChannelItem* MixerPanelModel::buildAuxChannelItem(aux_channel_idx_t index, 
     });
 
     AudioOutputParams outParams = audioSettings()->auxOutputParams(index);
-    if (MixerChannelItem* item = findChannelItem(trackId)) {
+    if (MixerChannelItem* existingItem = findChannelItem(trackId)) {
+        loadOutputParams(existingItem, std::move(outParams));
+    } else {
         loadOutputParams(item, std::move(outParams));
     }
 
