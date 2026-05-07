@@ -307,10 +307,6 @@ void ApplicationUiActions::init()
     dockWindowProvider()->windowChanged().onNotify(this, [this]() {
         listenOpenedDocksChanged(dockWindowProvider()->window());
     });
-
-    notationSceneConfiguration()->useNewPercussionPanelChanged().onNotify(this, [this]() {
-        m_actionEnabledChanged.send({ TOGGLE_PERCUSSION_PANEL_ACTION_CODE });
-    });
 }
 
 void ApplicationUiActions::listenOpenedDocksChanged(IDockWindow* window)
@@ -343,10 +339,6 @@ const muse::ui::UiActionList& ApplicationUiActions::actionsList() const
 
 bool ApplicationUiActions::actionEnabled(const UiAction& act) const
 {
-    if (act.code == TOGGLE_PERCUSSION_PANEL_ACTION_CODE) {
-        return notationSceneConfiguration()->useNewPercussionPanel();
-    }
-
     return m_controller->canReceiveAction(act.code);
 }
 
