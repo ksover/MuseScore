@@ -125,8 +125,6 @@ StaveSharingGroups EditStaveSharing::computeGroups(Score* score)
 
 void EditStaveSharing::createSharedParts(const StaveSharingGroups& groups, Score* score)
 {
-    const KeyList& keyList = score->keyList();
-
     for (const StaveSharingGroup& group : groups) {
         SharedPart* sharedPart = nullptr;
         for (Part* part : group) {
