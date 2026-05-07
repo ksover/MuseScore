@@ -5,7 +5,7 @@
  * MuseScore Studio
  * Music Composition & Notation
  *
- * Copyright (C) 2021 MuseScore Limited
+ * Copyright (C) 2026 MuseScore Limited and others
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as
@@ -32,12 +32,22 @@ void SharedPart::addOriginPart(Part* p)
 {
     DO_ASSERT(p->type() == ElementType::PART && !muse::contains(m_originParts, p));
 
-    m_originParts.push_back(p);
-
     const std::vector<Part*>& parts = score()->parts();
-    std::sort(m_originParts.begin(), m_originParts.end(), [&parts](Part* p1, Part* p2) {
-        return muse::indexOf(parts, p1) < muse::indexOf(parts, p2);
-    });
+    if (muse::contains(parts, p)) {
+        std::unordered_map<Part*, size_t> order;
+        for (size_t i = 0; i < parts.size(); ++i) {
+            order[parts[i]] = i;
+        }
+
+        auto it = std::lower_bound(m_originParts.begin(), m_originParts.end(), p, [&order](Part* part1, Part* part2) {
+            return order[part1] < order[part2];
+        });
+
+        m_originParts.insert(it, p);
+    } else {
+        // Can happen while reading files as p has not been added to the score yet
+        m_originParts.push_back(p);
+    }
 
     p->m_sharedPart = this;
 }
@@ -57,13 +67,13 @@ String SharedPart::partName() const
     const String& transp = i->transposition();
     if (!transp.empty()) {
         //: For instrument transposition, e.g. Horn in F
-        fullName += u" " + muse::mtrc("notation", "in") + u" " + transp;
+        fullName += u" " + muse::mtrc("engraving", "in") + u" " + transp;
     }
 
     int firstNumber = 10000;
     int lastNumber = 0;
 
-    for (Part* originPart : m_originParts) {
+    for (const Part* originPart : m_originParts) {
         int number = originPart->instrument()->number();
         firstNumber = std::min(firstNumber, number);
         lastNumber = std::max(lastNumber, number);

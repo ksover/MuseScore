@@ -2399,7 +2399,7 @@ void Score::cmdRemovePart(Part* part)
 
     undoRemovePart(part, muse::indexOf(m_parts, part));
 
-    if (sharedParts().empty()) {
+    if (!hasSharedParts()) {
         undoChangeStyleVal(Sid::enableStaveSharing, false);
     }
 }
@@ -5799,6 +5799,17 @@ std::vector<SharedPart*> Score::sharedParts() const
     }
 
     return sharedParts;
+}
+
+bool Score::hasSharedParts() const
+{
+    for (Part* part : m_parts) {
+        if (part->isSharedPart()) {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 size_t Score::visibleStavesCount() const
